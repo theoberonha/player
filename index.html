@@ -4,34 +4,26 @@
   <meta charset="UTF-8">
   <title>Player Offline Completo</title>
   <style>
-    body { font-family: sans-serif; background: #f4f4f4; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-    .video-container { position: relative; max-width: 800px; width: 100%; background: #000; }
-    video.primary { width: 100%; height: auto; display: block; }
+    body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .video-container { position: relative; width: 100%; max-width: 800px; background: #000; }
+    video.primary { width: 100%; height: auto; }
     video.libras {
-      position: absolute;
-      width: 200px;
-      top: 10px;
-      right: 10px;
-      border: 2px solid #fff;
-      background: #000;
-      display: none;
+      position: absolute; width: 200px; top: 10px; right: 10px;
+      border: 2px solid #fff; background: #000; display: none;
     }
     #legendOverlay {
-      position: absolute;
-      bottom: 50px;
-      width: 100%;
-      text-align: center;
-      color: #fff;
-      font-size: 18px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      position: absolute; bottom: 50px; width: 100%; text-align: center;
+      color: #fff; font-size: 18px; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
       pointer-events: none;
     }
-    .controls { margin-top: 10px; display: flex; gap: 10px; }
-    button { padding: 8px 12px; font-size: 14px; border: none; border-radius: 4px; background: #007bff; color: #fff; cursor: pointer; }
+    .controls { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+    button { padding: 8px 12px; font-size: 14px; border: none; border-radius: 4px;
+      background: #007bff; color: #fff; cursor: pointer; }
     button.active { background: #0056b3; }
     #transcript {
-      width: 800px; margin-top: 15px; background: #fff; padding: 10px;
-      border: 1px solid #ccc; display: none; max-height: 300px; overflow-y: auto;
+      width: 100%; max-width: 800px; margin-top: 15px; background: #fff;
+      padding: 10px; border: 1px solid #ccc; display: none;
+      max-height: 300px; overflow-y: auto;
     }
     #transcript p { margin: 4px 0; }
     #transcript p.highlight { text-decoration: underline yellow; }
@@ -39,13 +31,13 @@
 </head>
 <body>
   <div class="video-container">
-    <video id="video" class="primary" controls preload="metadata">
+    <video id="video" class="primary" controls preload="metadata"
+           playsinline webkit-playsinline controlsList="nofullscreen nodownload">
       <source src="Capitulo_01_O_ser_humano_e_suas_ferramentas_LIBRAS_correcao.mp4" type="video/mp4">
       Seu navegador não suporta este vídeo.
     </video>
-    <video id="librasVideo" class="libras" muted loop preload="auto" playsinline>
+    <video id="librasVideo" class="libras" muted loop preload="auto" playsinline webkit-playsinline>
       <source src="libras.mp4" type="video/mp4">
-      Seu navegador não suporta este vídeo.
     </video>
     <div id="legendOverlay"></div>
   </div>
@@ -55,11 +47,13 @@
     <button id="toggleDesc">Audiodescrição Off</button>
     <button id="toggleTrans">Transcrição Off</button>
     <button id="toggleLibras">LIBRAS Off</button>
+    <button id="toggleFs">Fullscreen</button>
   </div>
 
   <div id="transcript"></div>
 
   <script>
+    // Legendas extraídas de legenda.rtf
     const subs = [
       {start:0.5,end:3.503,text:"O ser humano e as suas ferramentas"},
       {start:11.344,end:15.782,text:"Essas são as primeiras cenas de 2001: Uma odisseia no Espaço,"},
@@ -119,16 +113,21 @@
       const btnDesc = document.getElementById('toggleDesc');
       const btnTrans = document.getElementById('toggleTrans');
       const btnLibras = document.getElementById('toggleLibras');
+      const btnFs = document.getElementById('toggleFs');
       const transcript = document.getElementById('transcript');
       let showSubs=false, showDesc=false, showTrans=false, showLibras=false, lastDesc=-1;
-      btnSubs.addEventListener('click',()=>{showSubs=!showSubs;btnSubs.classList.toggle('active',showSubs);btnSubs.textContent=showSubs?'Legendas On':'Legendas Off';updateLegend();});
-      btnDesc.addEventListener('click',()=>{showDesc=!showDesc;btnDesc.classList.toggle('active',showDesc);btnDesc.textContent=showDesc?'Audiodescrição On':'Audiodescrição Off';lastDesc=-1;speechSynthesis.cancel();});
-      btnTrans.addEventListener('click',()=>{showTrans=!showTrans;btnTrans.classList.toggle('active',showTrans);btnTrans.textContent=showTrans?'Transcrição On':'Transcrição Off';transcript.style.display=showTrans?'block':'none';if(showTrans)transcript.innerHTML=subs.map((c,i)=>`<p data-index="${i}">${c.text}</p>`).join('');});
-      btnLibras.addEventListener('click',()=>{showLibras=!showLibras;btnLibras.classList.toggle('active',showLibras);btnLibras.textContent=showLibras?'LIBRAS On':'LIBRAS Off';if(showLibras){libras.currentTime=video.currentTime;libras.style.display='block';libras.play();video.addEventListener('play',()=>libras.play());video.addEventListener('pause',()=>libras.pause());}else{libras.pause();libras.style.display='none';}});
-      video.addEventListener('timeupdate',()=>{const t=video.currentTime;if(showSubs)updateLegend();if(showDesc)updateDesc(t);if(showTrans)updateTranscript(t);if(showLibras)libras.currentTime=t;});
-      function updateLegend(){const t=video.currentTime;const cue=showSubs?subs.find(c=>t>=c.start&&t<=c.end):null;overlay.textContent=cue?cue.text:'';}      
-      function updateDesc(t){const idx=descs.findIndex(c=>t>=c.start&&t<=c.end);if(idx!==-1&&idx!==lastDesc){lastDesc=idx;video.pause();const utt=new SpeechSynthesisUtterance(descs[idx].text);utt.onend=()=>video.play();speechSynthesis.speak(utt);}}      
-      function updateTranscript(t){subs.forEach((c,i)=>{const p=transcript.querySelector(`p[data-index='${i}']`);if(t>=c.start&&t<=c.end)p.classList.add('highlight');else p.classList.remove('highlight');});}
+
+      btnSubs.addEventListener('click',()=>{ showSubs=!showSubs; btnSubs.classList.toggle('active',showSubs); btnSubs.textContent=showSubs?'Legendas On':'Legendas Off'; updateLegend(); });
+      btnDesc.addEventListener('click',()=>{ showDesc=!showDesc; btnDesc.classList.toggle('active',showDesc); btnDesc.textContent=showDesc?'Audiodescrição On':'Audiodescrição Off'; lastDesc=-1; speechSynthesis.cancel(); });
+      btnTrans.addEventListener('click',()=>{ showTrans=!showTrans; btnTrans.classList.toggle('active',showTrans); btnTrans.textContent=showTrans?'Transcrição On':'Transcrição Off'; transcript.style.display=showTrans?'block':'none'; if(showTrans) transcript.innerHTML=subs.map((c,i)=>`<p data-index="${i}">${c.text}</p>`).join(''); });
+      btnLibras.addEventListener('click',()=>{ showLibras=!showLibras; btnLibras.classList.toggle('active',showLibras); btnLibras.textContent=showLibras?'LIBRAS On':'LIBRAS Off'; if(showLibras){ libras.currentTime=video.currentTime; libras.style.display='block'; video.addEventListener('play',()=>libras.play()); video.addEventListener('pause',()=>libras.pause()); libras.play(); }else{ libras.pause(); libras.style.display='none'; } });
+      btnFs.addEventListener('click',()=>{ const cont=document.querySelector('.video-container'); if(document.fullscreenElement) document.exitFullscreen(); else cont.requestFullscreen(); });
+
+      video.addEventListener('timeupdate',()=>{ const t=video.currentTime; if(showSubs) updateLegend(); if(showDesc) updateDesc(t); if(showTrans) updateTranscript(t); if(showLibras) libras.currentTime=t; });
+
+      function updateLegend(){ const t=video.currentTime; const cue=showSubs?subs.find(c=>t>=c.start&&t<=c.end):null; overlay.textContent=cue?cue.text:''; }
+      function updateDesc(t){ const idx=descs.findIndex(c=>t>=c.start&&t<=c.end); if(idx!==-1&&idx!==lastDesc){ lastDesc=idx; video.pause(); const utt=new SpeechSynthesisUtterance(descs[idx].text); utt.onend=()=>video.play(); speechSynthesis.speak(utt); } }
+      function updateTranscript(t){ subs.forEach((c,i)=>{ const p=transcript.querySelector(`p[data-index='${i}']`); if(t>=c.start&&t<=c.end) p.classList.add('highlight'); else p.classList.remove('highlight'); }); }
     });
   </script>
 </body>
