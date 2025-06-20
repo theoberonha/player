@@ -363,10 +363,18 @@ document.addEventListener('touchend', () => {
 });
 
     // Audiodescrição
-    btnDesc.addEventListener('click',()=>{
-      showDesc=!showDesc; btnDesc.classList.toggle('active',showDesc);
-      lastDesc=-1; speechSynthesis.cancel();
-    });
+btnDesc.addEventListener('click', () => {
+  // Destravando o canal de áudio no iOS
+  speechSynthesis.getVoices();
+  // (opcional) um utterance curto vazio:
+  // speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+
+  showDesc = !showDesc;
+  btnDesc.classList.toggle('active', showDesc);
+  lastDesc = -1;
+  speechSynthesis.cancel();
+});
+
     function updateDesc(t){
       const idx=descs.findIndex(c=>t>=c.start&&t<=c.end);
       if(idx!==-1&&idx!==lastDesc){
