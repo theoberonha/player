@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <title>O Ser Humano e suas ferramentas?</title>
@@ -132,7 +132,7 @@
 <body>
   <div class="player-wrapper">
     <div class="player-header">
-      <h1>V11_O Ser Humano e suas ferramentas?</h1>
+      <h1>V12_O Ser Humano e suas ferramentas?</h1>
     </div>
     <div class="video-container" id="container">
       <video id="video" preload="metadata" playsinline webkit-playsinline controlsList="nofullscreen nodownload">
@@ -149,7 +149,7 @@
       <button id="toggleDesc">A</button>
       <button id="toggleSubs">L</button>
       <button id="toggleTrans">T</button>
-      <button id="toggleLibras">🧏</button>
+     <!-- <button id="toggleLibras">🧏</button> -->
       <button id="toggleFs">⛶</button>
     </div>
     <div id="transcript"></div>
@@ -321,7 +321,7 @@
       speechSynthesis.speak(silent);
       showDesc = !showDesc;
       btnDesc.classList.toggle('active', showDesc);
-      btnDesc.textContent = showDesc ? 'A On' : 'A';
+      btnDesc.textContent = showDesc ? 'A ' : 'A';
       lastDesc = -1;
       speechSynthesis.cancel();
     });
@@ -368,7 +368,7 @@
     btnSubs.addEventListener('click', ()=>{
       showSubs = !showSubs;
       btnSubs.classList.toggle('active', showSubs);
-      btnSubs.textContent = showSubs ? 'L On' : 'L';
+      btnSubs.textContent = showSubs ? 'L ' : 'L';
       if(!showSubs) overlay.textContent = '';
     });
     function updateLegend(t){
@@ -394,7 +394,7 @@
     btnTrans.addEventListener('click', ()=>{
       showTrans = !showTrans;
       btnTrans.classList.toggle('active', showTrans);
-      btnTrans.textContent = showTrans ? 'T On' : 'T';
+      btnTrans.textContent = showTrans ? 'T ' : 'T';
       transcript.style.display = showTrans ? 'block' : 'none';
       if(showTrans){ transcript.innerHTML = subs.map((c,i)=>`<p data-index="${i}">${c.text}</p>`).join(''); attachTranscriptClicks(); }
     });
