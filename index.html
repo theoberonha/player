@@ -22,7 +22,6 @@
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-    /* Header */
     .player-header {
       background: #9ecf3e;
       padding: 12px;
@@ -33,7 +32,6 @@
       font-size: 20px;
       color: #fff;
     }
-    /* Vídeo */
     .video-container {
       position: relative;
       background: #000;
@@ -42,7 +40,6 @@
       width: 100%;
       display: block;
     }
-    /* Legenda overlay */
     #legendOverlay {
       position: absolute;
       bottom: 50px;
@@ -53,7 +50,6 @@
       text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
       pointer-events: none;
     }
-    /* Barra de progresso */
     .progress-bar {
       position: relative;
       height: 8px;
@@ -76,7 +72,6 @@
       transform: translateX(-50%);
       cursor: pointer;
     }
-    /* Controles */
     .controls {
       display: flex;
       align-items: center;
@@ -91,15 +86,11 @@
       font-size: 16px;
       border-radius: 4px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .controls button.active {
       background: #9ecf3e;
       color: #fff;
     }
-    /* Transcrição */
     #transcript {
       display: none;
       background: #fff;
@@ -115,7 +106,6 @@
     #transcript p.highlight {
       background: yellow;
     }
-    /* LIBRAS */
     video#librasVideo {
       position: fixed;
       width: 200px;
@@ -132,7 +122,7 @@
 <body>
   <div class="player-wrapper">
     <div class="player-header">
-      <h1>V12 – O Ser Humano e suas ferramentas?</h1>
+      <h1>V13 – O Ser Humano e suas ferramentas?</h1>
     </div>
     <div class="video-container" id="container">
       <video id="video" preload="metadata" playsinline webkit-playsinline controlsList="nofullscreen nodownload">
@@ -149,7 +139,7 @@
       <button id="toggleDesc">A</button>
       <button id="toggleSubs">L</button>
       <button id="toggleTrans">T</button>
-      <button id="toggleLibras">🧏</button>
+   <!--   <button id="toggleLibras">🧏</button> -->
       <button id="toggleFs">⛶</button>
     </div>
     <div id="transcript"></div>
@@ -262,9 +252,8 @@
               {start:388.02,end:391.791,text:"Ações que devem ser tomadas\na partir de uma profunda compreensão"},
               {start:391.991,end:394.927,text:"do que está em jogo\nquando falamos de humanidade"},
               {start:394.927,end:399.265,text:"e tecnologias que nós mesmos criamos,\ncomo as inteligências artificiais."}      
-    ];
-
-    const descs = [
+];
+    const descs = [               
               {start:7.139,end:8.935,text:"Primatas em um deserto.\nAlguns seguram ossos."},
               {start:9.472,end:11.337,text:"Texto: 2001: Uma Odisséia no espaço. De Stanley Kubrick, 1968. Distribuidora: Warner Brós."},
               {start:29.167,end:31.729,text:"Uma espaçonave com o formato semelhante ao osso flutua no espaço."},
@@ -294,7 +283,7 @@
               {start:369.772,end:370.334,text:"A imagem escurece e começa a ser preenchida por zeros e uns, do código binário dos computadores. Esses números se multiplicam e se transformam em uma representação do globo terrestre."},
               {start:400.533,end:401.573,text:"O globo gira."},
               {start:402.98,end:403.636,text:"Os créditos sobem."}
-    ];
+];
 
     const video      = document.getElementById('video');
     const playBtn    = document.getElementById('btnPlay');
@@ -311,7 +300,7 @@
     const handle     = document.getElementById('handle');
 
     let showSubs=false, showDesc=false, showTrans=false, showLibras=false, lastDesc=-1;
-    let dragging=false, offsetX=0, offsetY=0;
+    let dragging=false;
 
     // Destrava TTS no iOS
     btnDesc.addEventListener('click', () => {
@@ -332,7 +321,7 @@
     video.addEventListener('play',  () => playBtn.textContent = '❚❚');
     video.addEventListener('pause', () => playBtn.textContent = '►');
 
-    // Progress
+    // Atualiza progresso
     function updateProgress() {
       const pct = (video.currentTime / video.duration) * 100;
       progress.style.width = pct + '%';
@@ -348,28 +337,25 @@
     });
 
     // Drag handle (mouse)
-    handle.addEventListener('mousedown', ()=> dragging = true);
+    handle.addEventListener('mousedown', () => dragging = true);
     document.addEventListener('mousemove', e => {
       if (!dragging) return;
       const rect = progressBar.getBoundingClientRect();
-      let pct = (e.clientX - rect.left) / rect.width;
-      video.currentTime = Math.max(0, Math.min(1, pct)) * video.duration;
+      let pct = (e.clientX - rect.left)/rect.width;
+      video.currentTime = Math.max(0,Math.min(1,pct)) * video.duration;
     });
-    document.addEventListener('mouseup', ()=> dragging = false);
+    document.addEventListener('mouseup', () => dragging = false);
 
     // Drag handle (touch)
-    handle.addEventListener('touchstart', e => {
-      dragging = true;
-      e.preventDefault();
-    }, { passive: false });
+    handle.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive:false });
     document.addEventListener('touchmove', e => {
       if (!dragging) return;
       e.preventDefault();
       const rect = progressBar.getBoundingClientRect();
-      let pct = (e.touches[0].clientX - rect.left) / rect.width;
-      video.currentTime = Math.max(0, Math.min(1, pct)) * video.duration;
-    }, { passive: false });
-    document.addEventListener('touchend', ()=> dragging = false);
+      let pct = (e.touches[0].clientX - rect.left)/rect.width;
+      video.currentTime = Math.max(0,Math.min(1,pct)) * video.duration;
+    }, { passive:false });
+    document.addEventListener('touchend', () => dragging = false);
 
     // Legendas
     btnSubs.addEventListener('click', () => {
@@ -378,14 +364,14 @@
       if (!showSubs) overlay.textContent = '';
     });
     function updateLegend(t) {
-      const cue = subs.find(c => t >= c.start && t <= c.end);
+      const cue = subs.find(c => t>=c.start && t<=c.end);
       overlay.textContent = showSubs && cue ? cue.text : '';
     }
 
     // Audiodescrição
     function updateDesc(t) {
-      const idx = descs.findIndex(c => t >= c.start && t <= c.end);
-      if (idx !== -1 && idx !== lastDesc) {
+      const idx = descs.findIndex(c => t>=c.start && t<=c.end);
+      if (idx!==-1 && idx!==lastDesc) {
         lastDesc = idx;
         video.pause();
         const utt = new SpeechSynthesisUtterance(descs[idx].text);
@@ -412,11 +398,11 @@
     function updateTranscript(t) {
       const prev = transcript.querySelector('p.highlight');
       if (prev) prev.classList.remove('highlight');
-      const idx = subs.findIndex(c => t >= c.start && t <= c.end);
-      if (idx !== -1) {
+      const idx = subs.findIndex(c => t>=c.start && t<=c.end);
+      if (idx!==-1) {
         const p = transcript.querySelector(`p[data-index="${idx}"]`);
         p.classList.add('highlight');
-        p.scrollIntoView({ behavior:'smooth', block:'center' });
+        p.scrollIntoView({behavior:'smooth',block:'center'});
       }
     }
     function attachTranscriptClicks() {
@@ -429,37 +415,24 @@
       });
     }
 
-    // LIBRAS
-    btnLibras.addEventListener('click', () => {
-      showLibras = !showLibras;
-      btnLibras.classList.toggle('active', showLibras);
-      libras.style.display = showLibras ? 'block' : 'none';
-      if (showLibras) {
-        libras.currentTime = video.currentTime;
-        libras.play();
-        video.addEventListener('play',  ()=> libras.play());
-        video.addEventListener('pause', ()=> libras.pause());
-      } else {
-        libras.pause();
-      }
-    });
-    libras.addEventListener('mousedown', e => {
-      dragging = true;
-      offsetX = e.clientX - libras.offsetLeft;
-      offsetY = e.clientY - libras.offsetTop;
-      document.body.style.userSelect = 'none';
-    });
-    document.addEventListener('mousemove', e => {
-      if (!dragging) return;
-      libras.style.left = (e.clientX - offsetX) + 'px';
-      libras.style.top  = (e.clientY - offsetY) + 'px';
-    });
-    document.addEventListener('mouseup', () => {
-      dragging = false;
-      document.body.style.userSelect = '';
-    });
+    // LIBRAS (protege se btnLibras não existir)
+    if (btnLibras) {
+      btnLibras.addEventListener('click', () => {
+        showLibras = !showLibras;
+        btnLibras.classList.toggle('active', showLibras);
+        libras.style.display = showLibras ? 'block' : 'none';
+        if (showLibras) {
+          libras.currentTime = video.currentTime;
+          libras.play();
+          video.addEventListener('play',  ()=> libras.play());
+          video.addEventListener('pause', ()=> libras.pause());
+        } else {
+          libras.pause();
+        }
+      });
+    }
 
-    // Fullscreen em todos dispositivos
+    // Fullscreen em todos os dispositivos
     btnFs.addEventListener('click', () => {
       if (video.webkitEnterFullscreen) {
         video.webkitEnterFullscreen();
