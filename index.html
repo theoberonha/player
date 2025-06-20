@@ -132,7 +132,7 @@
 <body>
   <div class="player-wrapper">
     <div class="player-header">
-      <h1>%%%O Ser Humano e suas ferramentas?</h1>
+      <h1>O Ser Humano e suas ferramentas?###</h1>
     </div>
     <div class="video-container" id="container">
       <video id="video" preload="metadata" playsinline webkit-playsinline controlsList="nofullscreen nodownload">
@@ -336,28 +336,21 @@
       if(showTrans) updateTranscript(t);
       if(showLibras) libras.currentTime=t;
     });
-    handle.addEventListener('mousedown',()=>dragging=true);
-    document.addEventListener('mousemove',e=>{ if(!dragging) return;
-      const rect=progressBar.getBoundingClientRect();
-      let pct=(e.clientX-rect.left)/rect.width;
-      pct=Math.max(0,Math.min(1,pct));
-      video.currentTime=pct*video.duration;
-    });
-    document.addEventListener('mouseup',()=>dragging=false);
-
-    // compatível com toque
 handle.addEventListener('touchstart', e => {
   dragging = true;
   offsetX = e.touches[0].clientX - handle.getBoundingClientRect().left;
   e.preventDefault();
-});
+}, { passive: false });
+
 document.addEventListener('touchmove', e => {
   if (!dragging) return;
   const rect = progressBar.getBoundingClientRect();
   let pct = (e.touches[0].clientX - rect.left) / rect.width;
   pct = Math.max(0, Math.min(1, pct));
   video.currentTime = pct * video.duration;
-});
+  e.preventDefault();
+}, { passive: false });
+
 document.addEventListener('touchend', () => {
   dragging = false;
 });
