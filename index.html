@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>V12 – O Ser Humano e suas ferramentas?</title>
+  <title>O Ser Humano e suas ferramentas?</title>
   <style>
     /* Container geral */
     body {
@@ -86,6 +86,9 @@
       font-size: 16px;
       border-radius: 4px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .controls button.active {
       background: #9ecf3e;
@@ -125,7 +128,10 @@
       <h1>V13 – O Ser Humano e suas ferramentas?</h1>
     </div>
     <div class="video-container" id="container">
-      <video id="video" preload="metadata" playsinline webkit-playsinline controlsList="nofullscreen nodownload">
+      <video id="video"
+             preload="metadata"
+             playsinline webkit-playsinline
+             controlsList="nofullscreen nodownload">
         <source src="Capitulo_01_O_ser_humano_e_suas_ferramentas_LIBRAS_correcao.mp4" type="video/mp4">
       </video>
       <div id="legendOverlay"></div>
@@ -139,7 +145,7 @@
       <button id="toggleDesc">A</button>
       <button id="toggleSubs">L</button>
       <button id="toggleTrans">T</button>
-   <!--   <button id="toggleLibras">🧏</button> -->
+<!--      <button id="toggleLibras">🧏</button>-->
       <button id="toggleFs">⛶</button>
     </div>
     <div id="transcript"></div>
@@ -150,6 +156,7 @@
   </video>
 
   <script>
+    // ----- Dados de legendas -----
     const subs = [
               {start:0.5,end:3.503,text:"O ser humano e as suas ferramentas"},
               {start:11.344,end:15.782,text:"Essas são as primeiras cenas de 2001:\nUma odisseia no Espaço,"},
@@ -252,8 +259,10 @@
               {start:388.02,end:391.791,text:"Ações que devem ser tomadas\na partir de uma profunda compreensão"},
               {start:391.991,end:394.927,text:"do que está em jogo\nquando falamos de humanidade"},
               {start:394.927,end:399.265,text:"e tecnologias que nós mesmos criamos,\ncomo as inteligências artificiais."}      
-];
-    const descs = [               
+    ];
+
+    // ----- Dados de audiodescrição -----
+    const descs = [
               {start:7.139,end:8.935,text:"Primatas em um deserto.\nAlguns seguram ossos."},
               {start:9.472,end:11.337,text:"Texto: 2001: Uma Odisséia no espaço. De Stanley Kubrick, 1968. Distribuidora: Warner Brós."},
               {start:29.167,end:31.729,text:"Uma espaçonave com o formato semelhante ao osso flutua no espaço."},
@@ -283,8 +292,9 @@
               {start:369.772,end:370.334,text:"A imagem escurece e começa a ser preenchida por zeros e uns, do código binário dos computadores. Esses números se multiplicam e se transformam em uma representação do globo terrestre."},
               {start:400.533,end:401.573,text:"O globo gira."},
               {start:402.98,end:403.636,text:"Os créditos sobem."}
-];
+    ];
 
+    // ----- Elementos -----
     const video      = document.getElementById('video');
     const playBtn    = document.getElementById('btnPlay');
     const btnDesc    = document.getElementById('toggleDesc');
@@ -299,10 +309,17 @@
     const progress   = document.getElementById('progress');
     const handle     = document.getElementById('handle');
 
-    let showSubs=false, showDesc=false, showTrans=false, showLibras=false, lastDesc=-1;
-    let dragging=false;
+    let showSubs = false,
+        showDesc = false,
+        showTrans = false,
+        showLibras = false,
+        lastDesc = -1,
+        dragging = false,
+        allowFS = false,
+        offsetX = 0,
+        offsetY = 0;
 
-    // Destrava TTS no iOS
+    // ----- Destrava TTS no iOS -----
     btnDesc.addEventListener('click', () => {
       speechSynthesis.getVoices();
       const silent = new SpeechSynthesisUtterance('‎');
@@ -314,18 +331,18 @@
       speechSynthesis.cancel();
     });
 
-    // Play/Pause
+    // ----- Play/Pause -----
     playBtn.addEventListener('click', () => {
       video.paused ? video.play() : video.pause();
     });
     video.addEventListener('play',  () => playBtn.textContent = '❚❚');
     video.addEventListener('pause', () => playBtn.textContent = '►');
 
-    // Atualiza progresso
+    // ----- Barra de progresso -----
     function updateProgress() {
       const pct = (video.currentTime / video.duration) * 100;
       progress.style.width = pct + '%';
-      handle.style.left  = pct + '%';
+      handle.style.left    = pct + '%';
     }
     video.addEventListener('timeupdate', () => {
       updateProgress();
@@ -341,37 +358,37 @@
     document.addEventListener('mousemove', e => {
       if (!dragging) return;
       const rect = progressBar.getBoundingClientRect();
-      let pct = (e.clientX - rect.left)/rect.width;
-      video.currentTime = Math.max(0,Math.min(1,pct)) * video.duration;
+      let pct = (e.clientX - rect.left) / rect.width;
+      video.currentTime = Math.max(0, Math.min(1, pct)) * video.duration;
     });
     document.addEventListener('mouseup', () => dragging = false);
 
     // Drag handle (touch)
-    handle.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive:false });
+    handle.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive: false });
     document.addEventListener('touchmove', e => {
       if (!dragging) return;
       e.preventDefault();
       const rect = progressBar.getBoundingClientRect();
-      let pct = (e.touches[0].clientX - rect.left)/rect.width;
-      video.currentTime = Math.max(0,Math.min(1,pct)) * video.duration;
-    }, { passive:false });
+      let pct = (e.touches[0].clientX - rect.left) / rect.width;
+      video.currentTime = Math.max(0, Math.min(1,pct)) * video.duration;
+    }, { passive: false });
     document.addEventListener('touchend', () => dragging = false);
 
-    // Legendas
+    // ----- Legendas On/Off -----
     btnSubs.addEventListener('click', () => {
       showSubs = !showSubs;
       btnSubs.classList.toggle('active', showSubs);
       if (!showSubs) overlay.textContent = '';
     });
     function updateLegend(t) {
-      const cue = subs.find(c => t>=c.start && t<=c.end);
+      const cue = subs.find(c => t >= c.start && t <= c.end);
       overlay.textContent = showSubs && cue ? cue.text : '';
     }
 
-    // Audiodescrição
+    // ----- Audiodescrição -----
     function updateDesc(t) {
-      const idx = descs.findIndex(c => t>=c.start && t<=c.end);
-      if (idx!==-1 && idx!==lastDesc) {
+      const idx = descs.findIndex(c => t >= c.start && t <= c.end);
+      if (idx !== -1 && idx !== lastDesc) {
         lastDesc = idx;
         video.pause();
         const utt = new SpeechSynthesisUtterance(descs[idx].text);
@@ -383,7 +400,7 @@
       }
     }
 
-    // Transcrição
+    // ----- Transcrição -----
     btnTrans.addEventListener('click', () => {
       showTrans = !showTrans;
       btnTrans.classList.toggle('active', showTrans);
@@ -398,11 +415,11 @@
     function updateTranscript(t) {
       const prev = transcript.querySelector('p.highlight');
       if (prev) prev.classList.remove('highlight');
-      const idx = subs.findIndex(c => t>=c.start && t<=c.end);
-      if (idx!==-1) {
+      const idx = subs.findIndex(c => t >= c.start && t <= c.end);
+      if (idx !== -1) {
         const p = transcript.querySelector(`p[data-index="${idx}"]`);
         p.classList.add('highlight');
-        p.scrollIntoView({behavior:'smooth',block:'center'});
+        p.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
     function attachTranscriptClicks() {
@@ -415,7 +432,7 @@
       });
     }
 
-    // LIBRAS (protege se btnLibras não existir)
+    // ----- LIBRAS (opcional) -----
     if (btnLibras) {
       btnLibras.addEventListener('click', () => {
         showLibras = !showLibras;
@@ -424,24 +441,46 @@
         if (showLibras) {
           libras.currentTime = video.currentTime;
           libras.play();
-          video.addEventListener('play',  ()=> libras.play());
-          video.addEventListener('pause', ()=> libras.pause());
+          video.addEventListener('play',  () => libras.play());
+          video.addEventListener('pause', () => libras.pause());
         } else {
           libras.pause();
         }
       });
     }
+    // Drag janela LIBRAS
+    libras.addEventListener('mousedown', e => {
+      dragging = true;
+      offsetX = e.clientX - libras.offsetLeft;
+      offsetY = e.clientY - libras.offsetTop;
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      libras.style.left = (e.clientX - offsetX) + 'px';
+      libras.style.top  = (e.clientY - offsetY) + 'px';
+    });
+    document.addEventListener('mouseup', () => {
+      dragging = false;
+      document.body.style.userSelect = '';
+    });
 
-    // Fullscreen em todos os dispositivos
+    // ----- Fullscreen apenas via botão -----
     btnFs.addEventListener('click', () => {
+      allowFS = true;
       if (video.webkitEnterFullscreen) {
         video.webkitEnterFullscreen();
       } else if (video.requestFullscreen) {
         video.requestFullscreen();
       } else {
-        const el = document.getElementById('container');
-        el.requestFullscreen && el.requestFullscreen();
+        document.getElementById('container').requestFullscreen && document.getElementById('container').requestFullscreen();
       }
+    });
+    video.addEventListener('webkitbeginfullscreen', () => {
+      if (!allowFS) {
+        video.webkitExitFullscreen();
+      }
+      allowFS = false;
     });
   </script>
 </body>
