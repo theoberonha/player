@@ -77,7 +77,7 @@
       cursor: pointer;
     }
     /* Controles inferiores */
-    .controls { 
+    .controls {
       display: flex;
       align-items: center;
       padding: 10px;
@@ -98,10 +98,6 @@
     .controls button.active {
       background: #9ecf3e;
       color: #fff;
-    }
-    .controls button svg {
-      width: 20px;
-      height: 20px;
     }
     /* Caixa de transcrição */
     #transcript {
@@ -153,7 +149,7 @@
       <button id="toggleDesc">A</button>
       <button id="toggleSubs">L</button>
       <button id="toggleTrans">T</button>
-     <!--<button id="toggleLibras">📺</button>-->
+      <button id="toggleLibras">🧏</button>
       <button id="toggleFs">⛶</button>
     </div>
     <div id="transcript"></div>
@@ -161,157 +157,274 @@
   <video id="librasVideo" muted loop preload="auto" playsinline webkit-playsinline>
     <source src="libras.mp4" type="video/mp4">
   </video>
+
   <script>
-    const subs = [ /* ... seus subtítulos ... */ ];
-    const descs = [ /* ... suas descrições ... */ ];
+    // Dados (legendagem, audiodescrição)
+    const subs = [
+              {start:0.5,end:3.503,text:"O ser humano e as suas ferramentas"},
+              {start:11.344,end:15.782,text:"Essas são as primeiras cenas de 2001:\nUma odisseia no Espaço,"},
+              {start:16.016,end:20.653,text:"onde um de nossos antepassados descobre\nque pode usar ossos como ferramenta."},
+              {start:21.955,end:24.324,text:"Da imagem do osso lançado para o alto,"},
+              {start:24.324,end:27.727,text:"Kubrick, o diretor do filme,\ncorta para uma espaçonave"},
+              {start:27.727,end:30.73,text:"viajando no espaço."},
+              {start:31.831,end:33.033,text:"A metáfora serve"},
+              {start:33.033,end:37.937,text:"para entender como as tecnologias,\ndesde as mais simples até as digitais,"},
+              {start:38.271,end:42.909,text:"modificaram a forma que nos relacionamos\nentre nós, e também com a natureza."},
+              {start:46.913,end:49.616,text:"O osso, quando usado como ferramenta,"},
+              {start:49.616,end:53.686,text:"é uma tecnologia que funciona\ncomo extensão dos braços e das mãos."},
+              {start:54.087,end:58.091,text:"Descobrimos que a pedra lascada\nservia como ferramenta de corte,"},
+              {start:58.324,end:60.894,text:"uma nova extensão do nosso corpo."},
+              {start:60.894,end:64.23,text:"O domínio dos metais\npossibilitou a criação do machado."},
+              {start:64.464,end:69.302,text:"A nova tecnologia em metal produziu\num instrumento mais forte e durável."},
+              {start:69.736,end:74.607,text:"A tecnologia dos motores metamorfoseou\no machado em uma serra elétrica"},
+              {start:74.674,end:78.011,text:"e estendeu ainda mais\nas possibilidades do nosso corpo"},
+              {start:78.011,end:81.581,text:"e aumentou a nossa capacidade\nde transformar a natureza,"},
+              {start:81.781,end:85.185,text:"construindo\n e também destruindo, muita coisa."},
+              {start:86.386,end:86.853,text:"Hoje, milênios depois da\ninvenção das primeiras ferramentas,"},
+              {start:88.121,end:92.859,text:"as extensões tecnológicas de nossas mãos"},
+              {start:93.093,end:97.197,text:"são capazes de fazer intervenções\nabsurdamente precisas."},
+              {start:97.497,end:101.134,text:"Os instrumentos cirúrgicos digitais,\ncom alta precisão"},
+              {start:101.134,end:104.771,text:"nos cortes e na suturação,\nsão apenas um exemplo disso."},
+              {start:106.439,end:109.442,text:"O mesmo processo\naconteceu com a visão."},
+              {start:109.445,end:113.113,text:"Simples lentes de óculos se tornaram \ntelescópios espaciais,"},
+              {start:113.113,end:117.117,text:"as pernas ganharam\nsapatos, rodas, trens, foguetes."},
+              {start:117.317,end:121.02,text:"Todas tecnologias que nos transportam\ncada vez mais rápido,"},
+              {start:121.02,end:124.29,text:"de um lugar ao outro,\nsem precisar usar tanto as pernas"},
+              {start:124.457,end:127.727,text:"e tampouco machucar os pés. Cognitivamente,"},
+              {start:127.727,end:131.731,text:"ou seja, a partir do nosso pensamento\ne do jeito como aprendemos,"},
+              {start:131.998,end:136.369,text:"saímos do ábaco, uma ferramenta\nda antiguidade, que ajuda a fazer contas,"},
+              {start:136.603,end:141.374,text:"e chegamos aos computadores, capazes\nde bilhões de cálculos por segundo."},
+              {start:142.041,end:145.879,text:"Tudo isso baseado nas capacidades\nque já nasceram com a gente"},
+              {start:145.879,end:148.915,text:"e também naquelas aprendidas\npelo cérebro humano."},
+              {start:149.382,end:152.919,text:"Mas nenhuma dessas tecnologias\nseria desenvolvida"},
+              {start:153.086,end:156.523,text:"se não fosse o nosso domínio da linguagem\ne da comunicação."},
+              {start:157.023,end:160.727,text:"Elas permitem que o conhecimento\nsobre essas tecnologias"},
+              {start:160.727,end:164.063,text:"seja passado\nadiante, ou registrado e armazenado"},
+              {start:164.063,end:167.233,text:"em livros,\ntransmitida por gerações e gerações."},
+              {start:168.001,end:173.106,text:"Se a escrita conecta pessoas no tempo,\nas tecnologias elétricas ou digitais,"},
+              {start:173.106,end:178.478,text:"como o telefone, a televisão e a internet,\nencurtam o espaço entre as pessoas."},
+              {start:178.545,end:181.548,text:"Átomos e bits juntos conectam o mundo."},
+              {start:182.248,end:184.817,text:"Isso é a inteligência coletiva,"},
+              {start:184.817,end:189.622,text:"a capacidade que temos de nos organizar\ne trabalhar, compartilhando conhecimentos,"},
+              {start:189.756,end:193.293,text:"criando novas tecnologias\ne resolvendo problemas."},
+              {start:194.16,end:198.765,text:"As descobertas e as invenções\nnunca foram obra de uma única pessoa."},
+              {start:198.798,end:202.068,text:"Elas são fruto de um conjunto\nde saberes anteriores,"},
+              {start:202.068,end:205.505,text:"maduros o suficiente\npara criar novas tecnologias."},
+              {start:205.538,end:209.342,text:"Todo o conhecimento\né uma construção social, e as sociedades"},
+              {start:209.342,end:214.08,text:"são fundadas nesse compartilhamento\nde saberes, que pertencem à humanidade."},
+              {start:214.581,end:219.018,text:"O conceito de cidadania\nsurge dessa visão de conjunto social"},
+              {start:219.018,end:223.289,text:"de igualdade, compartilhamento,\nconvivência e respeito."},
+              {start:223.723,end:226.593,text:"Respeito ao outro, respeito ao coletivo"},
+              {start:226.593,end:230.463,text:"e respeito ao ordenamento jurídico\nque regra a sociedade."},
+              {start:230.663,end:235.335,text:"A tecnologia está intrinsecamente ligada\nao processo civilizatório."},
+              {start:235.568,end:238.771,text:"Parte do princípio que\nse o conhecimento é coletivo,"},
+              {start:238.805,end:243.576,text:"toda a sociedade deveria se beneficiar\ndeste saber na mesma medida."},
+              {start:243.643,end:247.213,text:"Mas a história da humanidade\ntem mostrado que não é bem assim."},
+              {start:247.247,end:249.482,text:"A tecnologia que nos permite dominar átomos"},
+              {start:249.482,end:253.453,text:"pode tanto salvar vidas,\ncomo a radioterapia, por exemplo,"},
+              {start:253.453,end:256.456,text:"como matar outras tantas, com a bomba\natômica."},
+              {start:256.456,end:258.691,text:"O importante não é que os indivíduos"},
+              {start:258.691,end:262.528,text:"tenham acesso à tecnologia atômica,\nmas saber se podemos,"},
+              {start:262.528,end:266.633,text:"como cidadãos, controlar o\nuso dessas tecnologias perigosas."},
+              {start:266.633,end:270.203,text:"O uso da tecnologia que permite fazer\nbombas atômicas,"},
+              {start:270.203,end:273.673,text:"por exemplo,\né controlado por tratados internacionais."},
+              {start:273.806,end:277.877,text:"O mesmo se dá com outras tecnologias,\ncomo transgênicos,"},
+              {start:277.877,end:281.981,text:"agrotóxicos ou ferramentas de vigilância\ne controle social."},
+              {start:281.981,end:284.984,text:"O uso delas depende de regulamentações."},
+              {start:285.184,end:290.223,text:"O mundo digital e todas as facilidades\nque ele nos oferece não é diferente."},
+              {start:290.223,end:292.959,text:"Ele apresenta riscos\nquando as tecnologias digitais"},
+              {start:292.959,end:296.496,text:"são pouco controladas,\nou controladas por poucas pessoas."},
+              {start:296.496,end:298.364,text:"Chegamos agora à tecnologia"},
+              {start:298.364,end:302.135,text:"que muito influencia nosso jeito\nde estar e interagir com o mundo:"},
+              {start:302.201,end:304.17,text:"a inteligência artificial."},
+              {start:304.17,end:308.975,text:"Ela evolui a partir dos nossos processos\nintelectuais, da nossa inteligência,"},
+              {start:309.175,end:313.513,text:"mas está se tornando protagonista\nem muitas áreas, das ciências às artes."},
+              {start:314.113,end:316.549,text:"A gente pode até saber usar uma ferramenta"},
+              {start:316.549,end:319.786,text:"de processamento de linguagem\nem um chatbox, por exemplo,"},
+              {start:319.786,end:324.023,text:"mas isso não significa que a sociedade\ntem o controle dessa tecnologia."},
+              {start:324.057,end:327.96,text:"Será então que podemos dizer\nque, coletivamente, iremos participar"},
+              {start:327.96,end:332.065,text:"da criação de regras positivas\nno uso da inteligência artificial?"},
+              {start:332.265,end:334.801,text:"Iremos dominar a I.A., ou o contrário?"},
+              {start:334.801,end:337.77,text:"Essa inteligência criada por nós\nirá nos dominar?"},
+              {start:338.004,end:343.743,text:"Essas perguntas nos levam de volta\nà ficção científica 2001: Uma Odisséia no Espaço."},
+              {start:343.743,end:346.979,text:"No filme, a tecnologia nos levou de fato ao espaço"},
+              {start:346.979,end:349.982,text:"e fez dele um lugar \nonce a vida é possível e segura."},
+              {start:350.183,end:354.687,text:"Mas a estação espacial é controlada\npor HAL, uma inteligência artificial"},
+              {start:354.687,end:359.359,text:"que possui objetivos próprios e, por isso,\nentra em conflito com a tripulação."},
+              {start:360.093,end:362.428,text:"A alegoria de Kubrick, dessa vez,"},
+              {start:362.428,end:365.365,text:"mostra que a dependência total das tecnologias"},
+              {start:365.365,end:369.202,text:"pode ser perigosa,\nsobretudo se não temos controle sobre ela."},
+              {start:370.436,end:371.27,text:"Do átomo ao bit,"},
+              {start:371.27,end:375.341,text:"da pedra lascada \nàs inteligências artificiais,"},
+              {start:375.341,end:379.712,text:"percorremos um longo percurso,\nmas ainda temos muito caminho pela frente."},
+              {start:380.012,end:384.584,text:"Esse caminho pode ter diferentes destinos\nde acordo com nossas escolhas."},
+              {start:384.817,end:388.02,text:"O mundo que vamos ter amanhã\ndepende das ações de hoje."},
+              {start:388.02,end:391.791,text:"Ações que devem ser tomadas\na partir de uma profunda compreensão"},
+              {start:391.991,end:394.927,text:"do que está em jogo\nquando falamos de humanidade"},
+              {start:394.927,end:399.265,text:"e tecnologias que nós mesmos criamos,\ncomo as inteligências artificiais."}      
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const video = document.getElementById('video'), playBtn = document.getElementById('btnPlay');
-      const btnDesc = document.getElementById('toggleDesc'), btnSubs = document.getElementById('toggleSubs');
-      const btnTrans = document.getElementById('toggleTrans'), btnLibras = document.getElementById('toggleLibras');
-      const btnFs = document.getElementById('toggleFs'), overlay = document.getElementById('legendOverlay');
-      const transcript = document.getElementById('transcript'), libras = document.getElementById('librasVideo');
-      const progressBar = document.getElementById('progressBar'), progress = document.getElementById('progress');
-      const handle = document.getElementById('handle');
+    ];
+    const descs = [
+              {start:7.139,end:8.935,text:"Primatas em um deserto.\nAlguns seguram ossos."},
+              {start:9.472,end:11.337,text:"Texto: 2001: Uma Odisséia no espaço. De Stanley Kubrick, 1968. Distribuidora: Warner Brós."},
+              {start:29.167,end:31.729,text:"Uma espaçonave com o formato semelhante ao osso flutua no espaço."},
+              {start:43.033,end:46.885,text:"A nave e o osso se transformam em ícones simplificados e uma figura humana surge no centro."},
+              {start:53.824,end:54.059,text:"O ícone do osso se liga por um traço à mão da figura humana."},
+              {start:81.632,end:81.827,text:"Ícones de pedra lascada, machado e serra elétrica ligam-se à mão."},
+              {start:85.3,end:86.284,text:"Foto de uma serra cortando troncos e raízes."},
+              {start:97.203,end:97.358,text:"Animação de uma cirurgia feita por braço robótico"},
+              {start:104.8,end:106.339,text:"Ícone de braço robótico liga-se aos demais ícones relacionados à mão da figura humana."},
+              {start:108.6,end:109.444,text:"Aos olhos da figura, ligam-se ícones de um óculos e de diferentes tipos de telescópios."},
+              {start:117.239,end:117.341,text:"Do pé direito, surgem ícones de uma bota, uma roda, um trem e um foguete."},
+              {start:141.091,end:142.028,text:"Da cabeça, surgem ícones de ábaco, fórmula matemática, calculadora e chip de Inteligência Artificial."},
+              {start:156.77,end:157.012,text:"A partir da boca do ser humano são relacionados ícones de fala, livro, telefone e celular."},
+              {start:181.533,end:182.15,text:"Celulares e computadores se conectam."},
+              {start:214.134,end:214.532,text:"Os ícones desaparecem. A figura humana se multiplica como dobraduras de papel."},
+              {start:230.531,end:230.64,text:"Figuras humanas preenchem todo o espaço."},
+              {start:243.589,end:243.682,text:"As figuras desaparecem e um átomo se move no centro."},
+              {start:256.315,end:256.457,text:"Ícones de um prédio hospitalar, de uma explosão e de um símbolo de radiação, surgem no centro de um círculo rodeado por bustos."},
+              {start:281.872,end:281.98,text:"No centro do círculo surgem ícones de uma câmera de segurança, de uma folha de árvore e de uma caveira humana."},
+              {start:284.867,end:285.124,text:"Ícones de computador e celular surgem no centro do círculo de pessoas."},
+              {start:303.97,end:304.096,text:"Ícone de inteligência artificial surge no centro. Ele é substituído rapidamente por outros ligados à tecnologia."},
+              {start:323.935,end:324.02,text:"Caixa de chatbóx de uma plataforma de inteligência artificial."},
+              {start:332.195,end:332.277,text:"Um chip de inteligência artificial rodeado por pessoas é substituído por uma pessoa rodeada por chips de inteligência artificial."},
+              {start:343.601,end:343.7,text:"Uma estação espacial com forma de uma circunferência dupla gira ao redor da Terra."},
+              {start:349.994,end:350.102,text:"Astronautas se exercitam e se alimentam dentro da estação."},
+              {start:359.567,end:359.93,text:"Astronautas tentam desligar o computador HAL."},
+              {start:369.772,end:370.334,text:"A imagem escurece e começa a ser preenchida por zeros e uns, do código binário dos computadores. Esses números se multiplicam e se transformam em uma representação do globo terrestre."},
+              {start:400.533,end:401.573,text:"O globo gira."},
+              {start:402.98,end:403.636,text:"Os créditos sobem."}
 
-      let showSubs = false, showDesc = false, showTrans = false, showLibras = false, lastDesc = -1, dragging = false;
-      let offsetX = 0, offsetY = 0;
+];
 
-      // Pré-carrega vozes (opcional, para garantir getVoices funcione corretamente)
-      speechSynthesis.onvoiceschanged = () => {};
+    // Elementos
+    const video = document.getElementById('video');
+    const playBtn = document.getElementById('btnPlay');
+    const btnDesc = document.getElementById('toggleDesc');
+    const btnSubs = document.getElementById('toggleSubs');
+    const btnTrans = document.getElementById('toggleTrans');
+    const btnLibras = document.getElementById('toggleLibras');
+    const btnFs = document.getElementById('toggleFs');
+    const overlay = document.getElementById('legendOverlay');
+    const transcript = document.getElementById('transcript');
+    const libras = document.getElementById('librasVideo');
+    const progressBar = document.getElementById('progressBar');
+    const progress = document.getElementById('progress');
+    const handle = document.getElementById('handle');
 
-      playBtn.addEventListener('click', () => video.paused ? video.play() : video.pause());
-      video.addEventListener('play', () => playBtn.textContent = '❚❚');
-      video.addEventListener('pause', () => playBtn.textContent = '►');
+    let showSubs=false, showDesc=false, showTrans=false, showLibras=false, lastDesc=-1;
+    let dragging=false, offsetX=0, offsetY=0;
 
-      function updateProgress() {
-        const pct = (video.currentTime / video.duration) * 100;
-        progress.style.width = pct + '%';
-        handle.style.left = pct + '%';
+    // Pré-carrega vozes
+    speechSynthesis.onvoiceschanged = () => {};
+
+    // Play/Pause
+    playBtn.addEventListener('click', ()=> video.paused?video.play():video.pause());
+    video.addEventListener('play', ()=> playBtn.textContent='❚❚');
+    video.addEventListener('pause', ()=> playBtn.textContent='►');
+
+    // Progress
+    function updateProgress(){
+      const pct=(video.currentTime/video.duration)*100;
+      progress.style.width=pct+'%'; handle.style.left=pct+'%';
+    }
+    video.addEventListener('timeupdate', ()=>{
+      updateProgress();
+      const t=video.currentTime;
+      if(showSubs) updateLegend(t);
+      if(showDesc) updateDesc(t);
+      if(showTrans) updateTranscript(t);
+      if(showLibras) libras.currentTime=t;
+    });
+    handle.addEventListener('mousedown',()=>dragging=true);
+    document.addEventListener('mousemove',e=>{ if(!dragging) return;
+      const rect=progressBar.getBoundingClientRect();
+      let pct=(e.clientX-rect.left)/rect.width;
+      pct=Math.max(0,Math.min(1,pct));
+      video.currentTime=pct*video.duration;
+    });
+    document.addEventListener('mouseup',()=>dragging=false);
+
+    // Audiodescrição
+    btnDesc.addEventListener('click',()=>{
+      showDesc=!showDesc; btnDesc.classList.toggle('active',showDesc);
+      lastDesc=-1; speechSynthesis.cancel();
+    });
+    function updateDesc(t){
+      const idx=descs.findIndex(c=>t>=c.start&&t<=c.end);
+      if(idx!==-1&&idx!==lastDesc){
+        lastDesc=idx; video.pause();
+        const utt=new SpeechSynthesisUtterance(descs[idx].text);
+        utt.lang='pt-BR';
+        const ptVoices=speechSynthesis.getVoices().filter(v=>v.lang.startsWith('pt'));
+        if(ptVoices.length) utt.voice=ptVoices[0];
+        utt.onend=()=>video.play();
+        speechSynthesis.speak(utt);
       }
+    }
 
-      video.addEventListener('timeupdate', () => {
-        updateProgress();
-        const t = video.currentTime;
-        if (showSubs) updateLegend(t);
-        if (showDesc) updateDesc(t);
-        if (showTrans) updateTranscript(t);
-        if (showLibras) libras.currentTime = t;
-      });
+    // Legendas
+    btnSubs.addEventListener('click',()=>{
+      showSubs=!showSubs; btnSubs.classList.toggle('active',showSubs);
+      if(!showSubs) overlay.textContent='';
+    });
+    function updateLegend(t){
+      const cue=subs.find(c=>t>=c.start&&t<=c.end);
+      overlay.textContent=(showSubs&&cue)?cue.text:'';
+    }
 
-      handle.addEventListener('mousedown', () => dragging = true);
-      document.addEventListener('mousemove', e => {
-        if (!dragging) return;
-        const rect = progressBar.getBoundingClientRect();
-        let pct = (e.clientX - rect.left) / rect.width;
-        pct = Math.max(0, Math.min(1, pct));
-        video.currentTime = pct * video.duration;
-      });
-      document.addEventListener('mouseup', () => dragging = false);
-
-      btnSubs.addEventListener('click', () => {
-        showSubs = !showSubs;
-        btnSubs.classList.toggle('active', showSubs);
-        btnSubs.textContent = showSubs ? 'L ' : 'L';
-        if (!showSubs) overlay.textContent = '';
-      });
-
-      function updateLegend(t) {
-        const cue = subs.find(c => t >= c.start && t <= c.end);
-        overlay.textContent = (showSubs && cue) ? cue.text : '';
-      }
-
-      btnDesc.addEventListener('click', () => {
-        showDesc = !showDesc;
-        btnDesc.classList.toggle('active', showDesc);
-        btnDesc.textContent = showDesc ? 'A ' : 'A';
-        lastDesc = -1;
-        speechSynthesis.cancel();
-      });
-
-      function updateDesc(t) {
-        const idx = descs.findIndex(c => t >= c.start && t <= c.end);
-        if (idx !== -1 && idx !== lastDesc) {
-          lastDesc = idx;
-          video.pause();
-          const utt = new SpeechSynthesisUtterance(descs[idx].text);
-          // Define o idioma para português
-          utt.lang = 'pt-BR';
-          // Opcional: seleciona a primeira voz disponível em pt
-          const ptVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('pt'));
-          if (ptVoices.length) utt.voice = ptVoices[0];
-          utt.onend = () => video.play();
-          speechSynthesis.speak(utt);
-        }
-      }
-
-      btnTrans.addEventListener('click', () => {
-        showTrans = !showTrans;
-        btnTrans.classList.toggle('active', showTrans);
-        btnTrans.textContent = showTrans ? 'T ' : 'T';
-        transcript.style.display = showTrans ? 'block' : 'none';
-        if (showTrans) {
-          transcript.innerHTML = subs.map((c, i) => `<p data-index="${i}">${c.text}</p>`).join('');
-          attachTranscriptClicks();
-        }
-      });
-
-      function updateTranscript(t) {
-        subs.forEach((c, i) => {
-          const p = transcript.querySelector(`p[data-index='${i}']`);
-          if (t >= c.start && t <= c.end) {
-            p.classList.add('highlight');
-            p.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-          } else p.classList.remove('highlight');
+    // Transcrição
+    btnTrans.addEventListener('click',()=>{
+      showTrans=!showTrans; btnTrans.classList.toggle('active',showTrans);
+      transcript.style.display=showTrans?'block':'none';
+      if(showTrans){
+        transcript.innerHTML=subs.map((c,i)=>`<p data-index=\"${i}\">${c.text}</p>`).join('');
+        transcript.querySelectorAll('p').forEach(p=>{
+          p.addEventListener('click',()=>{ const i=parseInt(p.dataset.index,10);
+            video.currentTime=subs[i].start; video.play(); });
         });
       }
-
-      function attachTranscriptClicks() {
-        transcript.querySelectorAll('p').forEach(p => {
-          p.addEventListener('click', () => {
-            const i = parseInt(p.dataset.index, 10);
-            video.currentTime = subs[i].start;
-            video.play();
-          });
-        });
+    });
+    function updateTranscript(t){
+      // remove highlight anterior
+      const prev=transcript.querySelector('p.highlight');
+      if(prev) prev.classList.remove('highlight');
+      // destaca atual e faz scroll
+      const idx=subs.findIndex(c=>t>=c.start&&t<=c.end);
+      if(idx!==-1){
+        const p=transcript.querySelector(`p[data-index=\"${idx}\"]`);
+        p.classList.add('highlight');
+        // centraliza no box
+        const top=p.offsetTop - transcript.clientHeight/2 + p.clientHeight/2;
+        transcript.scrollTo({ top, behavior:'smooth' });
       }
+    }
 
-      btnLibras.addEventListener('click', () => {
-        showLibras = !showLibras;
-        btnLibras.classList.toggle('active', showLibras);
-        btnLibras.textContent = showLibras ? '📺 On' : '📺';
-        if (showLibras) {
-          libras.style.display = 'block';
-          libras.currentTime = video.currentTime;
-          libras.play();
-          video.addEventListener('play', () => libras.play());
-          video.addEventListener('pause', () => libras.pause());
-        } else {
-          libras.pause();
-          libras.style.display = 'none';
-        }
-      });
+    // Libras
+    btnLibras.addEventListener('click',()=>{
+      showLibras=!showLibras; btnLibras.classList.toggle('active',showLibras);
+      libras.style.display=showLibras?'block':'none';
+      if(showLibras){ libras.currentTime=video.currentTime;
+        video.addEventListener('play',()=>libras.play());
+        video.addEventListener('pause',()=>libras.pause());
+        libras.play();
+      } else libras.pause();
+    });
 
-      libras.addEventListener('mousedown', e => {
-        dragging = true;
-        offsetX = e.clientX - libras.getBoundingClientRect().left;
-        offsetY = e.clientY - libras.getBoundingClientRect().top;
-        document.body.style.userSelect = 'none';
-      });
-      document.addEventListener('mousemove', e => {
-        if (!dragging) return;
-        libras.style.left = (e.clientX - offsetX) + 'px';
-        libras.style.top = (e.clientY - offsetY) + 'px';
-      });
-      document.addEventListener('mouseup', () => {
-        dragging = false;
-        document.body.style.userSelect = '';
-      });
+    // Drag Libras
+    libras.addEventListener('mousedown',e=>{ dragging=true;
+      offsetX=e.clientX-libras.offsetLeft; offsetY=e.clientY-libras.offsetTop;
+      document.body.style.userSelect='none'; });
+    document.addEventListener('mousemove',e=>{ if(!dragging) return;
+      libras.style.left=(e.clientX-offsetX)+'px'; libras.style.top=(e.clientY-offsetY)+'px';
+    });
+    document.addEventListener('mouseup',()=>{ dragging=false;
+      document.body.style.userSelect=''; });
 
-      btnFs.addEventListener('click', () => {
-        const el = document.getElementById('container');
-        document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen();
-      });
+    // Fullscreen
+    btnFs.addEventListener('click',()=>{
+      const el=document.getElementById('container');
+      document.fullscreenElement?document.exitFullscreen():el.requestFullscreen();
     });
   </script>
 </body>
