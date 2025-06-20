@@ -385,21 +385,22 @@
         });
       }
     });
-    function updateTranscript(t){
-      // remove highlight anterior
-      const prev=transcript.querySelector('p.highlight');
-      if(prev) prev.classList.remove('highlight');
-      // destaca atual e faz scroll
-      const idx=subs.findIndex(c=>t>=c.start&&t<=c.end);
-      if(idx!==-1){
-        const p=transcript.querySelector(`p[data-index=\"${idx}\"]`);
-        p.classList.add('highlight');
-        // centraliza no box
-        const top=p.offsetTop - transcript.clientHeight/2 + p.clientHeight/2;
-        transcript.scrollTo({ top, behavior:'smooth' });
-      }
-    }
+function updateTranscript(t) {
+  // remove highlight anterior
+  const prev = transcript.querySelector('p.highlight');
+  if (prev) prev.classList.remove('highlight');
 
+  // encontra e destaca a linha atual
+  const idx = subs.findIndex(c => t >= c.start && t <= c.end);
+  if (idx !== -1) {
+    const p = transcript.querySelector(`p[data-index="${idx}"]`);
+    p.classList.add('highlight');
+    // faz scroll suave e sem pulo, centralizando ou mantendo a linha visível
+    p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // ou, se preferir evitar mexer quando já estiver visível:
+    // p.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
     // Libras
     btnLibras.addEventListener('click',()=>{
       showLibras=!showLibras; btnLibras.classList.toggle('active',showLibras);
