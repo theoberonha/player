@@ -2,150 +2,49 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>O Ser Humano e suas ferramentas?</title>
+  <title>V12 – O Ser Humano e suas ferramentas?</title>
   <style>
-    /* Container geral */
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: sans-serif;
-      background: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .player-wrapper {
-      background: #bcdd49;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 800px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    .player-header {
-      background: #9ecf3e;
-      padding: 12px;
-      text-align: center;
-    }
-    .player-header h1 {
-      margin: 0;
-      font-size: 20px;
-      color: #fff;
-    }
-    .video-container {
-      position: relative;
-      background: #000;
-    }
-    video#video {
-      width: 100%;
-      display: block;
-    }
-    #legendOverlay {
-      position: absolute;
-      bottom: 50px;
-      width: 100%;
-      text-align: center;
-      color: #fff;
-      font-size: 20px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-      pointer-events: none;
-    }
-    .progress-bar {
-      position: relative;
-      height: 8px;
-      background: #333;
-    }
-    .progress {
-      height: 100%;
-      background: #9ecf3e;
-      width: 0;
-    }
-    .progress-handle {
-      position: absolute;
-      top: -4px;
-      left: 0;
-      width: 16px;
-      height: 16px;
-      background: #bcdd49;
-      border: 2px solid #fff;
-      border-radius: 50%;
-      transform: translateX(-50%);
-      cursor: pointer;
-    }
-    .controls {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      background: #fff;
-      gap: 8px;
-    }
-    .controls button {
-      background: #eee;
-      border: none;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .controls button.active {
-      background: #9ecf3e;
-      color: #fff;
-    }
-    #transcript {
-      display: none;
-      background: #fff;
-      max-height: 200px;
-      overflow-y: auto;
-      padding: 10px;
-      border-top: 1px solid #ccc;
-    }
-    #transcript p {
-      margin: 4px 0;
-      cursor: pointer;
-    }
-    #transcript p.highlight {
-      background: yellow;
-    }
-    video#librasVideo {
-      position: fixed;
-      width: 200px;
-      top: 20px;
-      right: 20px;
-      border: 2px solid #fff;
-      display: none;
-      cursor: move;
-      z-index: 1000;
-      background: #000;
-    }
+    body { margin:0; padding:20px; font-family:sans-serif; background:#f0f0f0; display:flex; flex-direction:column; align-items:center; }
+    .player-wrapper { background:#bcdd49; border-radius:8px; width:100%; max-width:800px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    .player-header { background:#9ecf3e; padding:12px; text-align:center; }
+    .player-header h1 { margin:0; font-size:20px; color:#fff; }
+    .video-container { position:relative; background:#000; }
+    video#video { width:100%; display:block; }
+    /* legenda abaixo do vídeo */
+    #legendOverlay { width:100%; background:#000; color:#fff; padding:8px; text-align:center; font-size:18px; }
+    .progress-bar { position:relative; height:8px; background:#333; }
+    .progress { height:100%; background:#9ecf3e; width:0; }
+    .progress-handle { position:absolute; top:-4px; left:0; width:16px; height:16px; background:#bcdd49; border:2px solid #fff; border-radius:50%; transform:translateX(-50%); cursor:pointer; }
+    .controls { display:flex; align-items:center; padding:10px; background:#fff; gap:8px; }
+    .controls button { background:#eee; border:none; padding:8px; font-size:16px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .controls button.active { background:#9ecf3e; color:#fff; }
+    #transcript { display:none; background:#fff; max-height:200px; overflow-y:auto; padding:10px; border-top:1px solid #ccc; }
+    #transcript p { margin:4px 0; cursor:pointer; }
+    #transcript p.highlight { background:yellow; }
+    video#librasVideo { position:fixed; width:200px; top:20px; right:20px; border:2px solid #fff; display:none; cursor:move; z-index:1000; background:#000; }
   </style>
 </head>
 <body>
   <div class="player-wrapper">
     <div class="player-header">
-      <h1>V13 – O Ser Humano e suas ferramentas?</h1>
+      <h1>V14 4– O Ser Humano e suas ferramentas?</h1>
     </div>
     <div class="video-container" id="container">
-      <video id="video"
-             preload="metadata"
-             playsinline webkit-playsinline
-             controlsList="nofullscreen nodownload">
+      <video id="video" preload="metadata" playsinline webkit-playsinline controlsList="nofullscreen nodownload">
         <source src="Capitulo_01_O_ser_humano_e_suas_ferramentas_LIBRAS_correcao.mp4" type="video/mp4">
       </video>
-      <div id="legendOverlay"></div>
-      <div class="progress-bar" id="progressBar">
-        <div class="progress" id="progress"></div>
-        <div class="progress-handle" id="handle"></div>
-      </div>
+    </div>
+    <div id="legendOverlay"></div>
+    <div class="progress-bar" id="progressBar">
+      <div class="progress" id="progress"></div>
+      <div class="progress-handle" id="handle"></div>
     </div>
     <div class="controls">
       <button id="btnPlay">►</button>
       <button id="toggleDesc">A</button>
       <button id="toggleSubs">L</button>
       <button id="toggleTrans">T</button>
-<!--      <button id="toggleLibras">🧏</button>-->
+      <button id="toggleLibras">🧏</button>
       <button id="toggleFs">⛶</button>
     </div>
     <div id="transcript"></div>
@@ -156,7 +55,11 @@
   </video>
 
   <script>
-    // ----- Dados de legendas -----
+    // pré-load de vozes no iOS
+    document.addEventListener('DOMContentLoaded', ()=> speechSynthesis.getVoices() );
+    speechSynthesis.onvoiceschanged = ()=> speechSynthesis.getVoices();
+
+    // dados completos
     const subs = [
               {start:0.5,end:3.503,text:"O ser humano e as suas ferramentas"},
               {start:11.344,end:15.782,text:"Essas são as primeiras cenas de 2001:\nUma odisseia no Espaço,"},
@@ -260,8 +163,6 @@
               {start:391.991,end:394.927,text:"do que está em jogo\nquando falamos de humanidade"},
               {start:394.927,end:399.265,text:"e tecnologias que nós mesmos criamos,\ncomo as inteligências artificiais."}      
     ];
-
-    // ----- Dados de audiodescrição -----
     const descs = [
               {start:7.139,end:8.935,text:"Primatas em um deserto.\nAlguns seguram ossos."},
               {start:9.472,end:11.337,text:"Texto: 2001: Uma Odisséia no espaço. De Stanley Kubrick, 1968. Distribuidora: Warner Brós."},
@@ -294,7 +195,7 @@
               {start:402.98,end:403.636,text:"Os créditos sobem."}
     ];
 
-    // ----- Elementos -----
+    // elementos
     const video      = document.getElementById('video');
     const playBtn    = document.getElementById('btnPlay');
     const btnDesc    = document.getElementById('toggleDesc');
@@ -309,177 +210,152 @@
     const progress   = document.getElementById('progress');
     const handle     = document.getElementById('handle');
 
-    let showSubs = false,
-        showDesc = false,
-        showTrans = false,
-        showLibras = false,
-        lastDesc = -1,
-        dragging = false,
-        allowFS = false,
-        offsetX = 0,
-        offsetY = 0;
+    let showSubs=false, showDesc=false, showTrans=false, showLibras=false;
+    let lastDesc=-1, dragging=false, allowFS=false, offsetX=0, offsetY=0;
 
-    // ----- Destrava TTS no iOS -----
-    btnDesc.addEventListener('click', () => {
-      speechSynthesis.getVoices();
-      const silent = new SpeechSynthesisUtterance('‎');
-      silent.volume = 0;
-      speechSynthesis.speak(silent);
-      showDesc = !showDesc;
-      btnDesc.classList.toggle('active', showDesc);
-      lastDesc = -1;
-      speechSynthesis.cancel();
-    });
+    // Play/Pause
+    playBtn.addEventListener('click', ()=> video.paused ? video.play() : video.pause() );
+    video.addEventListener('play', ()=> playBtn.textContent='❚❚' );
+    video.addEventListener('pause', ()=> playBtn.textContent='►' );
 
-    // ----- Play/Pause -----
-    playBtn.addEventListener('click', () => {
-      video.paused ? video.play() : video.pause();
-    });
-    video.addEventListener('play',  () => playBtn.textContent = '❚❚');
-    video.addEventListener('pause', () => playBtn.textContent = '►');
-
-    // ----- Barra de progresso -----
+    // progresso
     function updateProgress() {
       const pct = (video.currentTime / video.duration) * 100;
       progress.style.width = pct + '%';
-      handle.style.left    = pct + '%';
+      handle.style.left   = pct + '%';
     }
-    video.addEventListener('timeupdate', () => {
+    video.addEventListener('timeupdate', ()=>{
       updateProgress();
       const t = video.currentTime;
-      if (showSubs)  updateLegend(t);
-      if (showDesc)  updateDesc(t);
-      if (showTrans) updateTranscript(t);
-      if (showLibras) libras.currentTime = t;
+      if (showSubs)    updateLegend(t);
+      if (showDesc)    updateDesc(t);
+      if (showTrans)   updateTranscript(t);
+      if (showLibras)  libras.currentTime = t;
     });
 
-    // Drag handle (mouse)
-    handle.addEventListener('mousedown', () => dragging = true);
-    document.addEventListener('mousemove', e => {
+    // drag handle
+    handle.addEventListener('mousedown', ()=> dragging=true );
+    document.addEventListener('mousemove', e=>{
       if (!dragging) return;
-      const rect = progressBar.getBoundingClientRect();
-      let pct = (e.clientX - rect.left) / rect.width;
-      video.currentTime = Math.max(0, Math.min(1, pct)) * video.duration;
+      const r = progressBar.getBoundingClientRect();
+      let pct = (e.clientX - r.left) / r.width;
+      video.currentTime = Math.max(0, Math.min(1,pct)) * video.duration;
     });
-    document.addEventListener('mouseup', () => dragging = false);
-
-    // Drag handle (touch)
-    handle.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive: false });
-    document.addEventListener('touchmove', e => {
+    document.addEventListener('mouseup', ()=> dragging=false );
+    handle.addEventListener('touchstart', e=>{ dragging=true; e.preventDefault(); }, {passive:false});
+    document.addEventListener('touchmove', e=>{
       if (!dragging) return;
       e.preventDefault();
-      const rect = progressBar.getBoundingClientRect();
-      let pct = (e.touches[0].clientX - rect.left) / rect.width;
+      const r = progressBar.getBoundingClientRect();
+      let pct = (e.touches[0].clientX - r.left) / r.width;
       video.currentTime = Math.max(0, Math.min(1,pct)) * video.duration;
-    }, { passive: false });
-    document.addEventListener('touchend', () => dragging = false);
+    }, {passive:false});
+    document.addEventListener('touchend', ()=> dragging=false );
 
-    // ----- Legendas On/Off -----
-    btnSubs.addEventListener('click', () => {
+    // Legendas
+    btnSubs.addEventListener('click', ()=>{
       showSubs = !showSubs;
       btnSubs.classList.toggle('active', showSubs);
       if (!showSubs) overlay.textContent = '';
     });
     function updateLegend(t) {
-      const cue = subs.find(c => t >= c.start && t <= c.end);
+      const cue = subs.find(c=>t>=c.start && t<=c.end);
       overlay.textContent = showSubs && cue ? cue.text : '';
     }
 
-    // ----- Audiodescrição -----
+    // Audiodescrição (pause → speak → resume)
+    btnDesc.addEventListener('click', ()=>{
+      // destrava TTS no iOS
+      const silent = new SpeechSynthesisUtterance('‎');
+      silent.volume = 0;
+      speechSynthesis.speak(silent);
+
+      showDesc = !showDesc;
+      btnDesc.classList.toggle('active', showDesc);
+      lastDesc = -1;
+      // dispara imediatamente se já dentro de trecho
+      if (showDesc) updateDesc(video.currentTime);
+    });
     function updateDesc(t) {
-      const idx = descs.findIndex(c => t >= c.start && t <= c.end);
+      const idx = descs.findIndex(c=>t>=c.start && t<=c.end);
       if (idx !== -1 && idx !== lastDesc) {
         lastDesc = idx;
         video.pause();
         const utt = new SpeechSynthesisUtterance(descs[idx].text);
         utt.lang = 'pt-BR';
-        const voice = speechSynthesis.getVoices().find(v => v.lang.startsWith('pt'));
-        if (voice) utt.voice = voice;
-        utt.onend = () => video.play();
+        const v = speechSynthesis.getVoices().find(x=>x.lang.startsWith('pt'));
+        if (v) utt.voice = v;
+        utt.onend = ()=> video.play();
         speechSynthesis.speak(utt);
       }
     }
 
-    // ----- Transcrição -----
-    btnTrans.addEventListener('click', () => {
+    // Transcrição
+    btnTrans.addEventListener('click', ()=>{
       showTrans = !showTrans;
       btnTrans.classList.toggle('active', showTrans);
       transcript.style.display = showTrans ? 'block' : 'none';
       if (showTrans) {
-        transcript.innerHTML = subs.map((c,i) =>
-          `<p data-index="${i}">${c.text}</p>`
-        ).join('');
-        attachTranscriptClicks();
+        transcript.innerHTML = subs.map((c,i)=>`<p data-index="${i}">${c.text}</p>`).join('');
+        transcript.querySelectorAll('p').forEach(p=>{
+          p.addEventListener('click', ()=>{
+            const i = +p.dataset.index;
+            video.currentTime = subs[i].start;
+            video.play();
+          });
+        });
       }
     });
     function updateTranscript(t) {
       const prev = transcript.querySelector('p.highlight');
       if (prev) prev.classList.remove('highlight');
-      const idx = subs.findIndex(c => t >= c.start && t <= c.end);
+      const idx = subs.findIndex(c=>t>=c.start && t<=c.end);
       if (idx !== -1) {
         const p = transcript.querySelector(`p[data-index="${idx}"]`);
         p.classList.add('highlight');
-        p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        p.scrollIntoView({behavior:'smooth', block:'center'});
       }
     }
-    function attachTranscriptClicks() {
-      transcript.querySelectorAll('p').forEach(p => {
-        p.addEventListener('click', () => {
-          const i = parseInt(p.dataset.index,10);
-          video.currentTime = subs[i].start;
-          video.play();
-        });
-      });
-    }
 
-    // ----- LIBRAS (opcional) -----
+    // LIBRAS opcional
     if (btnLibras) {
-      btnLibras.addEventListener('click', () => {
+      btnLibras.addEventListener('click', ()=>{
         showLibras = !showLibras;
         btnLibras.classList.toggle('active', showLibras);
         libras.style.display = showLibras ? 'block' : 'none';
         if (showLibras) {
           libras.currentTime = video.currentTime;
           libras.play();
-          video.addEventListener('play',  () => libras.play());
-          video.addEventListener('pause', () => libras.pause());
-        } else {
-          libras.pause();
-        }
+          video.addEventListener('play', ()=> libras.play());
+          video.addEventListener('pause', ()=> libras.pause());
+        } else libras.pause();
       });
     }
-    // Drag janela LIBRAS
-    libras.addEventListener('mousedown', e => {
+    libras.addEventListener('mousedown', e=>{
       dragging = true;
       offsetX = e.clientX - libras.offsetLeft;
       offsetY = e.clientY - libras.offsetTop;
       document.body.style.userSelect = 'none';
     });
-    document.addEventListener('mousemove', e => {
+    document.addEventListener('mousemove', e=>{
       if (!dragging) return;
       libras.style.left = (e.clientX - offsetX) + 'px';
       libras.style.top  = (e.clientY - offsetY) + 'px';
     });
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('mouseup', ()=>{
       dragging = false;
       document.body.style.userSelect = '';
     });
 
-    // ----- Fullscreen apenas via botão -----
-    btnFs.addEventListener('click', () => {
+    // Fullscreen apenas via botão
+    btnFs.addEventListener('click', ()=>{
       allowFS = true;
-      if (video.webkitEnterFullscreen) {
-        video.webkitEnterFullscreen();
-      } else if (video.requestFullscreen) {
-        video.requestFullscreen();
-      } else {
-        document.getElementById('container').requestFullscreen && document.getElementById('container').requestFullscreen();
-      }
+      if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+      else if (video.requestFullscreen) video.requestFullscreen();
+      else document.getElementById('container').requestFullscreen?.();
     });
-    video.addEventListener('webkitbeginfullscreen', () => {
-      if (!allowFS) {
-        video.webkitExitFullscreen();
-      }
+    video.addEventListener('webkitbeginfullscreen', ()=>{
+      if (!allowFS) video.webkitExitFullscreen();
       allowFS = false;
     });
   </script>
