@@ -41,20 +41,56 @@
       text-align:center; font-size:18px; min-height:40px;
     }
 
-    .progress-bar { position:relative; height:8px; background:#333; }
+    /* 1) torne o progresso um flex container */
+.progress-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 32px;         /* acomodar handle + timeDisplay */
+  background: #333;
+  padding-right: 60px;   /* espaço para o timeDisplay */
 
-    .progress { height:100%; background:#9ecf3e; width:0; }
+}
 
-    .progress-handle {
-      position:absolute; top:-8px; left:0;
-      width:60px; height:32px;
-      background:#bcdd49;
-      border:2px solid rgba(255,255,255,0.7);
-      border-radius:4px; transform:translateX(-50%);
-      cursor:pointer; display:flex; align-items:center;
-      justify-content:center; font-size:12px; color:#000;
-      user-select:none;
-    }
+/* 2) faça o progress preencher o eixo X */
+.progress {
+  flex: 1;
+  height: 8px;
+  background: #9ecf3e;
+  margin-right: 8px;
+}
+
+/* 3) handle fica sobre o progresso */
+.progress-handle {
+  position: absolute;
+  top: 50%;
+  left: 0;                   /* será atualizado pelo JS */
+  width: 16px;               /* tamanho da bolinha */
+  height: 16px;
+  margin-top: -8px;          /* centraliza verticalmente */
+  background: #9ecf3e;       /* verde */
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;                /* garante que fique acima da barra */
+  /* retire qualquer transform translateX(-50%) daqui */
+}
+
+/* 4) novo time-display posicionado à direita */
+.time-display {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 56px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size:12px;
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  border-radius: 4px;
+}
 
     .controls {
       display:flex; align-items:center;
@@ -102,7 +138,7 @@
 <body>
   <div class="player-wrapper">
     <div class="player-header">
-      <h1>O Ser Humano e suas ferramentas?</h1>
+      <h1>UPDATEV2 O Ser Humano e suas ferramentas?</h1>
     </div>
     <div class="video-container" id="container">
       <video id="video" preload="metadata" playsinline>
@@ -113,8 +149,9 @@
     <div id="legendOverlay"></div>
 
     <div class="progress-bar" id="progressBar">
-      <div class="progress" id="progress"></div>
-      <div class="progress-handle" id="handle">00:00</div>
+            <div class="progress" id="progress"></div>
+            <div class="progress-handle" id="handle"></div>
+            <div class="time-display" id="timeDisplay">00:00</div>
     </div>
 
     <div class="controls">
@@ -277,202 +314,203 @@
               {start:402.98,end:403.636,text:"Os créditos sobem."}
     ];
 
-     // elementos
-    const video      = document.getElementById('video');
-    const playBtn    = document.getElementById('btnPlay');
-    const btnDesc    = document.getElementById('toggleDesc');
-    const btnSubs    = document.getElementById('toggleSubs');
-    const btnTrans   = document.getElementById('toggleTrans');
-    const btnFs      = document.getElementById('toggleFs');
-    const overlay    = document.getElementById('legendOverlay');
-    const transcript = document.getElementById('transcript');
-    const progress   = document.getElementById('progress');
-    const handle     = document.getElementById('handle');
-    const progressBar= document.getElementById('progressBar');
-    const libras     = document.getElementById('librasVideo');
+   // elementos
+  const video        = document.getElementById('video');
+  const playBtn      = document.getElementById('btnPlay');
+  const btnRewind    = document.getElementById('btnRewind');
+  const btnForward   = document.getElementById('btnForward');
+  const btnDesc      = document.getElementById('toggleDesc');
+  const btnSubs      = document.getElementById('toggleSubs');
+  const btnTrans     = document.getElementById('toggleTrans');
+  const btnFs        = document.getElementById('toggleFs');
+  const overlay      = document.getElementById('legendOverlay');
+  const transcript   = document.getElementById('transcript');
+  const progressBar  = document.getElementById('progressBar');
+  const progress     = document.getElementById('progress');
+  const handle       = document.getElementById('handle');
+  const timeDisplay  = document.getElementById('timeDisplay');
 
-    let showSubs=false, showDesc=false, showTrans=false, showLibras=false;
-    let lastDesc=-1, dragging=false, allowFS=false, offsetX=0, offsetY=0;
+  // seus arrays de legendas e descrições
+  // const subs = [ ... ];
+  // const descs = [ ... ];
 
-    // inicialização da transcrição
-    function buildTranscript() {
-      transcript.innerHTML = subs.map((c,i)=>
-        `<p data-index="${i}">${c.text}</p>`
-      ).join('');
-      transcript.querySelectorAll('p').forEach(p=>{
-        p.addEventListener('click', ()=>{
-          const idx = +p.dataset.index;
-          video.currentTime = subs[idx].start;
-          video.play();
-        });
+  let showSubs=false,
+      showDesc=false,
+      showTrans=false,
+      dragging=false,
+      allowFS=false,
+      lastDesc=-1;
+
+  // formata MM:SS
+  function formatTime(t) {
+    const m = String(Math.floor(t/60)).padStart(2,'0');
+    const s = String(Math.floor(t%60)).padStart(2,'0');
+    return `${m}:${s}`;
+  }
+
+  // monta a transcrição clicável
+  function buildTranscript() {
+    transcript.innerHTML = subs.map((c,i)=>
+      `<p data-index="${i}">${c.text}</p>`
+    ).join('');
+    transcript.querySelectorAll('p').forEach(p=>{
+      p.addEventListener('click', ()=>{
+        const idx = +p.dataset.index;
+        video.currentTime = subs[idx].start;
+        video.play();
       });
-    }
-
-    // abrir transcrição já de cara
-  /*  showTrans = true;
-    btnTrans.classList.add('active');
-    transcript.style.display = 'none';*/
-
- /*     btnTrans.addEventListener('click', ()=>{
-      showSubs = !showSubs;
-      btnTrans.classList.toggle('active', showSubs);
-      if (!showSubs) overlay.textContent = '';
-      buildTranscript();
-
-    }); */
-
-
-    // play/pause
-    playBtn.addEventListener('click', ()=> {
-      video.paused ? video.play() : video.pause();
     });
-    video.addEventListener('play', ()=> playBtn.textContent='❚❚' );
-    video.addEventListener('pause', ()=> playBtn.textContent='▶︎' );
+  }
 
-    // update progress + tempo no handle
-    function updateProgress() {
-      const pct = video.currentTime / video.duration * 100;
-      progress.style.width = pct + '%';
-      handle.style.left   = pct + '%';
-      const m = String(Math.floor(video.currentTime/60)).padStart(2,'0');
-      const s = String(Math.floor(video.currentTime%60)).padStart(2,'0');
-      handle.textContent = `${m}:${s}`;
-    }
+  // mostra legenda fixa
+  function updateLegend(t) {
+    const cue = subs.find(c => t>=c.start && t<=c.end);
+    overlay.textContent = showSubs && cue ? cue.text : '';
+  }
 
-    video.addEventListener('timeupdate', ()=>{
-      updateProgress();
-      const t = video.currentTime;
-      if (showSubs)  updateLegend(t);
-      if (showDesc)  updateDesc(t);
-      if (showTrans) updateTranscript(t);
-      if (showLibras) libras.currentTime = t;
-    });
-
-    // dragging do handle
-  /*  handle.addEventListener('mousedown', ()=> dragging=true);
-    document.addEventListener('mousemove', e=>{
-      if (!dragging) return;
-      const r = progressBar.getBoundingClientRect();
-      let pct = (e.clientX - r.left) / r.width;
-      video.currentTime = Math.max(0, Math.min(1,pct)) * video.duration;
-    });
-    document.addEventListener('mouseup', ()=> dragging=false);*/
-
-    // drag touch
-    handle.addEventListener('touchstart', e=>{ dragging=true; e.preventDefault(); }, {passive:false});
-    document.addEventListener('touchmove', e=>{
-      if (!dragging) return;
-      e.preventDefault();
-      const r = progressBar.getBoundingClientRect();
-      let pct = (e.touches[0].clientX - r.left) / r.width;
-      video.currentTime = Math.max(0, Math.min(1,pct)) * video.duration;
-    }, {passive:false});
-    document.addEventListener('touchend', ()=> dragging=false);
-
-    // Legenda 💬
-    btnSubs.addEventListener('click', ()=>{
-      showSubs = !showSubs;
-      btnSubs.classList.toggle('active', showSubs);
-      if (!showSubs) overlay.textContent = '';
-    });
-    function updateLegend(t) {
-      const cue = subs.find(c=>t>=c.start && t<=c.end);
-      overlay.textContent = showSubs && cue ? cue.text : '';
-    }
-
-    // Audiodescrição 🎧
-    btnDesc.addEventListener('click', ()=>{
-      // destrava iOS
-      const silent = new SpeechSynthesisUtterance('‎'); silent.volume=0;
-      speechSynthesis.speak(silent);
-
-      showDesc = !showDesc;
-      btnDesc.classList.toggle('active', showDesc);
-      lastDesc = -1;
-      if (showDesc) updateDesc(video.currentTime);
-    });
-    function updateDesc(t) {
-      const idx = descs.findIndex(c=>t>=c.start && t<=c.end);
-      if (idx!==-1 && idx!==lastDesc) {
-        lastDesc = idx;
-        video.pause();
-        const utt = new SpeechSynthesisUtterance(descs[idx].text);
-        utt.lang = 'pt-BR';
-        const v = speechSynthesis.getVoices().find(x=>x.lang.startsWith('pt'));
-        if (v) utt.voice = v;
-        utt.onend = ()=> video.play();
-        speechSynthesis.speak(utt);
+  // audiodescrição
+ function updateDesc(t) {
+  const idx = descs.findIndex(c => t >= c.start && t <= c.end);
+  if (idx !== -1 && idx !== lastDesc) {
+    lastDesc = idx;
+    video.pause();
+    const utt = new SpeechSynthesisUtterance(descs[idx].text);
+    utt.lang = 'pt-BR';
+    const v = speechSynthesis.getVoices().find(x => x.lang.startsWith('pt'));
+    if (v) utt.voice = v;
+    utt.onend = () => {
+      // só retoma se ainda não estiver no fim do vídeo
+      if (!video.ended) {
+        video.play();
       }
+    };
+    speechSynthesis.speak(utt);
+  }
+}
+
+  // destaca a linha correta na transcrição
+  function updateTranscript(t) {
+    const prev = transcript.querySelector('p.highlight');
+    if (prev) prev.classList.remove('highlight');
+    const idx = subs.findIndex(c => t>=c.start && t<=c.end);
+    if (idx!==-1) {
+      transcript.querySelector(`p[data-index="${idx}"]`)
+                .classList.add('highlight');
     }
+  }
 
-    // Transcrição 📝 highlight + scroll interno
-    function updateTranscript(t) {
-      const prev = transcript.querySelector('p.highlight');
-      if (prev) prev.classList.remove('highlight');
-      const idx = subs.findIndex(c=>t>=c.start && t<=c.end);
-      if (idx!==-1) {
-        const p = transcript.querySelector(`p[data-index="${idx}"]`);
-        p.classList.add('highlight');
-      //  p.scrollIntoView({behavior:"smooth", block:'center'});
-      }
-    }
+  // atualiza a barra, a bolinha e o relógio
+  function updateProgress() {
+    const pct = video.currentTime / video.duration;
+    progress.style.width = `${pct*100}%`;
 
-    btnTrans.addEventListener('click', ()=>{
-      showTrans = !showTrans;
-      btnTrans.classList.toggle('active', showTrans);
-      transcript.style.display = showTrans ? 'block' : 'none';
-      document.body.style.overflow = showTrans ? 'hidden' : '';
-      if (showTrans) buildTranscript();  // reconstruir (para garantir os listeners)
-    });
+    // área útil: largura total menos relógio e handle
+    const barW   = progressBar.clientWidth;
+    const tdW    = timeDisplay.clientWidth;
+    const hW     = handle.clientWidth;
+    const usable = barW - tdW - hW;
+    const x      = usable * pct + (hW/2);
 
-    // libras (comentado por padrão)
-    // …
+    handle.style.left = `${x}px`;
+    timeDisplay.textContent = formatTime(video.currentTime);
+  }
 
-    // Fullscreen
-    btnFs.addEventListener('click', ()=>{
-      allowFS = true;
-      if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-      else if (video.requestFullscreen) video.requestFullscreen();
-      else container.requestFullscreen?.();
-    });
-    video.addEventListener('webkitbeginfullscreen', ()=>{
-      if (!allowFS) video.webkitExitFullscreen();
-      allowFS = false;
-    });
+  // eventos
+  video.addEventListener('timeupdate', ()=>{
+    updateProgress();
+    const t = video.currentTime;
+    if (showSubs)    updateLegend(t);
+    if (showDesc)    updateDesc(t);
+    if (showTrans)   updateTranscript(t);
+  });
 
-    // teclado
-    document.addEventListener('keydown', e=>{
-      switch(e.code) {
-        case 'Space':
-          e.preventDefault(); video.paused ? video.play() : video.pause();
-          break;
-        case 'ArrowRight':
-          video.currentTime = Math.min(video.duration, video.currentTime+5);
-          break;
-        case 'ArrowLeft':
-          video.currentTime = Math.max(0, video.currentTime-5);
-          break;
-        case 'ArrowUp':
-          video.volume = Math.min(1, video.volume+0.1);
-          break;
-        case 'ArrowDown':
-          video.volume = Math.max(0, video.volume-0.1);
-          break;
-      }
-    });
+  playBtn.addEventListener('click', ()=> {
+    video.paused ? video.play() : video.pause();
+  });
+  video.addEventListener('play',  ()=> playBtn.textContent='❚❚');
+  video.addEventListener('pause', ()=> playBtn.textContent='▶︎');
 
-    const btnRewind  = document.getElementById('btnRewind');
-    const btnForward = document.getElementById('btnForward');
+  btnRewind.addEventListener('click', ()=> {
+    video.currentTime = Math.max(0, video.currentTime - 5);
+  });
+  btnForward.addEventListener('click', ()=> {
+    video.currentTime = Math.min(video.duration, video.currentTime + 5);
+  });
 
-    // retrocede 5 segundos
-    btnRewind.addEventListener('click', () => {
-      video.currentTime = Math.max(0, video.currentTime - 5);
-    });
+  // desktop drag
+  handle.addEventListener('mousedown', ()=> dragging=true);
+  document.addEventListener('mousemove', e=>{
+    if (!dragging) return;
+    const r = progressBar.getBoundingClientRect();
+    const barW   = r.width;
+    const tdW    = timeDisplay.clientWidth;
+    const hW     = handle.clientWidth;
+    const usable = barW - tdW - hW;
+    let pct = (e.clientX - r.left - (hW/2)) / usable;
+    pct = Math.max(0, Math.min(1, pct));
+    video.currentTime = pct * video.duration;
+  });
+  document.addEventListener('mouseup', ()=> dragging=false);
 
-    // avança 5 segundos
-    btnForward.addEventListener('click', () => {
-      video.currentTime = Math.min(video.duration, video.currentTime + 5);
-    });
+  // touch drag
+  handle.addEventListener('touchstart', e=>{
+    dragging=true; e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('touchmove', e=>{
+    if (!dragging) return;
+    e.preventDefault();
+    const r = progressBar.getBoundingClientRect();
+    const barW   = r.width;
+    const tdW    = timeDisplay.clientWidth;
+    const hW     = handle.clientWidth;
+    const usable = barW - tdW - hW;
+    let pct = (e.touches[0].clientX - r.left - (hW/2)) / usable;
+    pct = Math.max(0, Math.min(1, pct));
+    video.currentTime = pct * video.duration;
+  }, {passive:false});
+  document.addEventListener('touchend', ()=> dragging=false);
+
+  // legenda toggle
+  btnSubs.addEventListener('click', ()=>{
+    showSubs = !showSubs;
+    btnSubs.classList.toggle('active', showSubs);
+    if (!showSubs) overlay.textContent = '';
+  });
+
+  // audiodescrição toggle
+  btnDesc.addEventListener('click', ()=>{
+    // destrava iOS
+    const silent = new SpeechSynthesisUtterance('‎');
+    silent.volume = 0; speechSynthesis.speak(silent);
+
+    showDesc = !showDesc;
+    btnDesc.classList.toggle('active', showDesc);
+    lastDesc = -1;
+    if (showDesc) updateDesc(video.currentTime);
+  });
+
+  // transcrição toggle
+  btnTrans.addEventListener('click', ()=>{
+    showTrans = !showTrans;
+    btnTrans.classList.toggle('active', showTrans);
+    transcript.style.display = showTrans ? 'block' : 'none';
+    document.body.style.overflow = showTrans ? 'hidden' : '';
+    if (showTrans) buildTranscript();
+  });
+
+  // fullscreen
+  btnFs.addEventListener('click', ()=>{
+    allowFS = true;
+    if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+    else if (video.requestFullscreen) video.requestFullscreen();
+  });
+  video.addEventListener('webkitbeginfullscreen', ()=>{
+    if (!allowFS) video.webkitExitFullscreen();
+    allowFS = false;
+  });
+
+  // (reutilize sua função de buildTranscript, subs/descs, etc)
+  // buildTranscript(), subs, descs já declarados acima
 
 
   </script>
