@@ -138,7 +138,7 @@
 <body>
   <div class="player-wrapper">
     <div class="player-header">
-      <h1>UPDATEV2 O Ser Humano e suas ferramentas?</h1>
+      <h1>UPDATEV3 O Ser Humano e suas ferramentas?</h1>
     </div>
     <div class="video-container" id="container">
       <video id="video" preload="metadata" playsinline>
@@ -314,7 +314,7 @@
               {start:402.98,end:403.636,text:"Os créditos sobem."}
     ];
 
-   // elementos
+ // elementos
   const video        = document.getElementById('video');
   const playBtn      = document.getElementById('btnPlay');
   const btnRewind    = document.getElementById('btnRewind');
@@ -330,16 +330,8 @@
   const handle       = document.getElementById('handle');
   const timeDisplay  = document.getElementById('timeDisplay');
 
-  // seus arrays de legendas e descrições
-  // const subs = [ ... ];
-  // const descs = [ ... ];
-
-  let showSubs=false,
-      showDesc=false,
-      showTrans=false,
-      dragging=false,
-      allowFS=false,
-      lastDesc=-1;
+  let showSubs=false, showDesc=false, showTrans=false,
+      dragging=false, allowFS=false, lastDesc=-1;
 
   // formata MM:SS
   function formatTime(t) {
@@ -362,49 +354,43 @@
     });
   }
 
-  // mostra legenda fixa
+  // legenda fixa
   function updateLegend(t) {
-    const cue = subs.find(c => t>=c.start && t<=c.end);
+    const cue = subs.find(c=>t>=c.start&&t<=c.end);
     overlay.textContent = showSubs && cue ? cue.text : '';
   }
 
   // audiodescrição
- function updateDesc(t) {
-  const idx = descs.findIndex(c => t >= c.start && t <= c.end);
-  if (idx !== -1 && idx !== lastDesc) {
-    lastDesc = idx;
-    video.pause();
-    const utt = new SpeechSynthesisUtterance(descs[idx].text);
-    utt.lang = 'pt-BR';
-    const v = speechSynthesis.getVoices().find(x => x.lang.startsWith('pt'));
-    if (v) utt.voice = v;
-    utt.onend = () => {
-      // só retoma se ainda não estiver no fim do vídeo
-      if (!video.ended) {
-        video.play();
-      }
-    };
-    speechSynthesis.speak(utt);
+  function updateDesc(t) {
+    const idx = descs.findIndex(c=>t>=c.start&&t<=c.end);
+    if(idx!==-1&&idx!==lastDesc) {
+      lastDesc=idx;
+      video.pause();
+      const utt = new SpeechSynthesisUtterance(descs[idx].text);
+      utt.lang='pt-BR';
+      const v = speechSynthesis.getVoices().find(x=>x.lang.startsWith('pt'));
+      if(v) utt.voice=v;
+      utt.onend = ()=>!video.ended && video.play();
+      speechSynthesis.speak(utt);
+    }
   }
-}
 
-  // destaca a linha correta na transcrição
+  // destaque da transcrição
   function updateTranscript(t) {
     const prev = transcript.querySelector('p.highlight');
-    if (prev) prev.classList.remove('highlight');
-    const idx = subs.findIndex(c => t>=c.start && t<=c.end);
-    if (idx!==-1) {
+    if(prev) prev.classList.remove('highlight');
+    const idx = subs.findIndex(c=>t>=c.start&&t<=c.end);
+    if(idx!==-1) {
       transcript.querySelector(`p[data-index="${idx}"]`)
                 .classList.add('highlight');
     }
   }
 
-  // atualiza a barra, a bolinha e o relógio
+  // barra + bolinha + relógio
   function updateProgress() {
     const pct = video.currentTime / video.duration;
     progress.style.width = `${pct*100}%`;
 
-    // área útil: largura total menos relógio e handle
     const barW   = progressBar.clientWidth;
     const tdW    = timeDisplay.clientWidth;
     const hW     = handle.clientWidth;
@@ -415,21 +401,23 @@
     timeDisplay.textContent = formatTime(video.currentTime);
   }
 
-  // eventos
+  // timeupdate
   video.addEventListener('timeupdate', ()=>{
     updateProgress();
     const t = video.currentTime;
-    if (showSubs)    updateLegend(t);
-    if (showDesc)    updateDesc(t);
-    if (showTrans)   updateTranscript(t);
+    if(showSubs)    updateLegend(t);
+    if(showDesc)    updateDesc(t);
+    if(showTrans)   updateTranscript(t);
   });
 
+  // play/pause
   playBtn.addEventListener('click', ()=> {
     video.paused ? video.play() : video.pause();
   });
   video.addEventListener('play',  ()=> playBtn.textContent='❚❚');
   video.addEventListener('pause', ()=> playBtn.textContent='▶︎');
 
+  // rewind / forward
   btnRewind.addEventListener('click', ()=> {
     video.currentTime = Math.max(0, video.currentTime - 5);
   });
@@ -437,10 +425,10 @@
     video.currentTime = Math.min(video.duration, video.currentTime + 5);
   });
 
-  // desktop drag
+  // drag handle (desktop)
   handle.addEventListener('mousedown', ()=> dragging=true);
   document.addEventListener('mousemove', e=>{
-    if (!dragging) return;
+    if(!dragging) return;
     const r = progressBar.getBoundingClientRect();
     const barW   = r.width;
     const tdW    = timeDisplay.clientWidth;
@@ -457,7 +445,7 @@
     dragging=true; e.preventDefault();
   }, {passive:false});
   document.addEventListener('touchmove', e=>{
-    if (!dragging) return;
+    if(!dragging) return;
     e.preventDefault();
     const r = progressBar.getBoundingClientRect();
     const barW   = r.width;
@@ -470,47 +458,64 @@
   }, {passive:false});
   document.addEventListener('touchend', ()=> dragging=false);
 
-  // legenda toggle
-  btnSubs.addEventListener('click', ()=>{
-    showSubs = !showSubs;
-    btnSubs.classList.toggle('active', showSubs);
-    if (!showSubs) overlay.textContent = '';
+  // toggle legend, desc, transcript
+  btnSubs .addEventListener('click', ()=>{ showSubs = !showSubs; btnSubs.classList.toggle('active', showSubs); if(!showSubs) overlay.textContent=''; });
+  btnDesc .addEventListener('click', ()=>{
+    const silent = new SpeechSynthesisUtterance('‎'); silent.volume=0; speechSynthesis.speak(silent);
+    showDesc = !showDesc; btnDesc.classList.toggle('active', showDesc); lastDesc=-1; if(showDesc) updateDesc(video.currentTime);
   });
-
-  // audiodescrição toggle
-  btnDesc.addEventListener('click', ()=>{
-    // destrava iOS
-    const silent = new SpeechSynthesisUtterance('‎');
-    silent.volume = 0; speechSynthesis.speak(silent);
-
-    showDesc = !showDesc;
-    btnDesc.classList.toggle('active', showDesc);
-    lastDesc = -1;
-    if (showDesc) updateDesc(video.currentTime);
-  });
-
-  // transcrição toggle
   btnTrans.addEventListener('click', ()=>{
     showTrans = !showTrans;
     btnTrans.classList.toggle('active', showTrans);
     transcript.style.display = showTrans ? 'block' : 'none';
     document.body.style.overflow = showTrans ? 'hidden' : '';
-    if (showTrans) buildTranscript();
+    if(showTrans) buildTranscript();
   });
 
   // fullscreen
   btnFs.addEventListener('click', ()=>{
-    allowFS = true;
-    if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-    else if (video.requestFullscreen) video.requestFullscreen();
+    allowFS=true;
+    if(video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+    else if(video.requestFullscreen) video.requestFullscreen();
   });
   video.addEventListener('webkitbeginfullscreen', ()=>{
-    if (!allowFS) video.webkitExitFullscreen();
-    allowFS = false;
+    if(!allowFS) video.webkitExitFullscreen();
+    allowFS=false;
   });
 
-  // (reutilize sua função de buildTranscript, subs/descs, etc)
-  // buildTranscript(), subs, descs já declarados acima
+  // **teclas globais** (funciona mesmo sem foco)
+  window.addEventListener('keydown', function(e) {
+    const tag = document.activeElement.tagName.toLowerCase();
+    if (tag==='input' || tag==='textarea' || document.activeElement.isContentEditable)
+      return;
+
+    switch (e.key) {
+      case ' ':
+      case 'Spacebar':
+        e.preventDefault();
+        video.paused ? video.play() : video.pause();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        video.currentTime = Math.min(video.duration, video.currentTime + 5);
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        video.currentTime = Math.max(0, video.currentTime - 5);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        video.volume = Math.min(1, video.volume + 0.1);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        video.volume = Math.max(0, video.volume - 0.1);
+        break;
+    }
+  });
+
+  // inicializar transcript se precisar
+  // buildTranscript();
 
 
   </script>
